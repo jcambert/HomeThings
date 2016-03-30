@@ -22,6 +22,7 @@ namespace HomeThings.Server
             _fileSystem = new ofs.EmbeddedResourceFileSystem(baseNamespace);
             _baseNamespace = baseNamespace;
             _resourceNames = Assembly.GetCallingAssembly().GetManifestResourceNames();
+            
         }
         public bool TryGetDirectoryContents(string subpath, out IEnumerable<IFileInfo> contents)
         {

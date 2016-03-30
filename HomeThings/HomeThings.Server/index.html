@@ -4,14 +4,38 @@
 <head>
     <meta charset="utf-8" />
     <title>Home Things</title>
+    <link href="content/bootstrap.min.css" rel="stylesheet" />
+    <link href="content/bootstrap-theme.min.css" rel="stylesheet" />
+    <link href="content/font-awesome.min.css" rel="stylesheet" />
+    <link href="content/site.css" rel="stylesheet" />
 </head>
-<body>
-    <script src="scripts/jquery-1.6.4.min.js"></script>
+<body class="nav-md pace-done" ng-cloak ng-app="homeThingsApplication">
+
+    <dashboard ng-controller="mainCtrl"></dashboard>
+
+    <script src="scripts/jquery-2.2.2.min.js"></script>
     <script src="scripts/jquery.signalr-2.2.0.min.js"></script>
-    
+
+    <script src="scripts/angular.min.js"></script>
+    <script src="scripts/angular-animate.min.js"></script>
+    <script src="scripts/angular-cookies.min.js"></script>
+    <script src="scripts/angular-ui-router.min.js"></script>
+    <script src="scripts/angular-translate.min.js"></script>
+    <script src="scripts/i18n/angular-locale_fr-fr.js"></script>
+    <script src="scripts/angular-translate-storage-cookie.min.js"></script>
+    <script src="scripts/angular-translate-storage-local.min.js"></script>
+    <script src="scripts/angular-translate-loader-static-files.min.js"></script>
+
+    <script src="scripts/bootstrap.min.js"></script>
+    <script src="scripts/angular-ui/ui-bootstrap.min.js"></script>
+    <script src="scripts/angular-ui/ui-bootstrap-tpls.min.js"></script>
+    <script src="scripts/angular-ui/ui-utils.min.js"></script>
+
+    <script src="scripts/homethings.js"></script>
+
     <script>
         $(document).ready(function () {
-            alert('ready');
+            console.log('ready');
         });
     </script>
 </body>

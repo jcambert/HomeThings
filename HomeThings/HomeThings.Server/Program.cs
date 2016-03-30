@@ -1,5 +1,6 @@
 ﻿using Microsoft.Owin.Hosting;
 using Microsoft.Owin.StaticFiles;
+using Microsoft.Owin.StaticFiles.ContentTypes;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Owin;
@@ -105,11 +106,20 @@ namespace HomeThings.Server
 
         private void ConfigureFileServer(IAppBuilder app)
         {
-            app.UseFileServer(new FileServerOptions
+            var options=new FileServerOptions
             {
+#if DEBUG
+                EnableDirectoryBrowsing = true,
+#else
                 EnableDirectoryBrowsing = false,
+#endif
+                
                 FileSystem = new EmbeddedResourceFileSystem("HomeThings.Server")
-            });
+            };
+
+            ((FileExtensionContentTypeProvider)options.ContentTypeProvider).Mappings.Add(
+                new KeyValuePair<string, string>(".woff2", "application/font-woff2"));
+            app.UseFileServer(options);
         }
     }
 }

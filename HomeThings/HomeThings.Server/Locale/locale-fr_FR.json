@@ -1,0 +1,21 @@
+﻿{
+  "welcome": "Bienvenue",
+  "settings": "Parametres",
+  "fullscreen": "Plein ecran",
+  "lock": "Verouillage",
+  "logout": "Deconnexion",
+  "profile": "Compte",
+  "help": "Aide",
+  "profile-tooltip": "Gerer votre compte",
+  "settings-tooltip": "Gestion des parametres",
+  "help-tooltip": "Acceder à l'aide",
+  "logout-tooltip": "Déconnexion du soft",
+  "toggle-menu-tooltip": "Afficher/Cacher le menu",
+  "profile-management-tooltip": "Gerer votre compte",
+  "article-management-tooltip": "Gestion des articles",
+  "code_article": "Code Article",
+  "tous": "Tous",
+  "creer": "Nouveau",
+  "temp": "Temporaire",
+  "x": "x"
+}
