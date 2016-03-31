@@ -16,9 +16,12 @@ namespace HomeThings.Server.Controllers
             () => GlobalHost.ConnectionManager.GetHubContext<THub>()
         );
 
-        protected IHubContext Hub
-        {
-            get { return hub.Value; }
-        }
+        Lazy<IUnitOfWork> uow = new Lazy<IUnitOfWork>(
+            () => new UnitOfWork()
+        );
+
+        protected IHubContext Hub=> hub.Value;
+
+        protected IUnitOfWork UnitOfWork => uow.Value;
     }
 }

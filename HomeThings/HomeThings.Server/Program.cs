@@ -114,11 +114,11 @@ namespace HomeThings.Server
                 EnableDirectoryBrowsing = false,
 #endif
                 
-                FileSystem = new EmbeddedResourceFileSystem("HomeThings.Server")
+                FileSystem = new EmbeddedResourceFileSystem("HomeThings.Server"),
+                
             };
+            options.StaticFileOptions.ContentTypeProvider = new ContentTypeProvider();
 
-            ((FileExtensionContentTypeProvider)options.ContentTypeProvider).Mappings.Add(
-                new KeyValuePair<string, string>(".woff2", "application/font-woff2"));
             app.UseFileServer(options);
         }
     }

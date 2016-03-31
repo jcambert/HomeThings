@@ -6,16 +6,8 @@ using System.Threading.Tasks;
 
 namespace HomeThings.Server
 {
-    public class Things
+    public class Entity
     {
         public int Id { get; set; }
-
-        public Status Status { get; set; }
-    }
-
-    public enum Status
-    {
-        Autonome,
-        Connecte
     }
 }

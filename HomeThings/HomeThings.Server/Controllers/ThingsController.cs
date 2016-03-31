@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,28 +11,79 @@ namespace HomeThings.Server.Controllers
 
     public class ThingsController:ApiControllerWithHub<HomeThingsHub>
     {
-        List<Things> things;
-
+        
         public ThingsController()
         {
-            things = new List<Things>();
-            things.Add(new Things() { Id = 1, Status = Status.Connecte });
-        }
-        public IHttpActionResult PostThings(Things things)
-        {
-            Hub.Clients.All.Add(things);
-            return Ok();
         }
 
-        public IHttpActionResult Remove(Things things)
+        public IRepository<Thing> Repository => UnitOfWork.ThingRepository;
+
+        public IHttpActionResult PostThings(Thing thing)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    Repository.Insert(thing);
+                    UnitOfWork.Save();
+                    Hub.Clients.All.Add(thing);
+                }
+                return Ok(thing);
+            }
+            catch (DataException ex)
+            {
+                ModelState.AddModelError("", ex);
+              
+            }
+            return this.Conflict();
+        }
+
+        public IHttpActionResult Remove(Thing things)
         {
             Hub.Clients.All.Remove(things);
             return Ok();
         }
 
-        public IQueryable<Things> Get()
+        public IQueryable<Thing> Get()
         {
-            return things.AsQueryable();
+#if DEBUG
+            if (Repository.Count() == 0)
+            {
+                Repository.Insert(new Thing() { Id = 1, Status = Status.Autonome });
+                UnitOfWork.Save();
+            }
+#endif
+                return UnitOfWork.ThingRepository.Get();
         }
+
+      /*  public IHttpActionResult PostDetecter()
+        {
+
+        }
+
+        public IHttpActionResult PostConnecter()
+        {
+
+        }
+
+        public IHttpActionResult PostDeconnecter()
+        {
+
+        }
+
+        public IHttpActionResult PostActionner()
+        {
+
+        }
+
+        public IHttpActionResult PostLireEtat()
+        {
+
+        }
+
+        public IHttpActionResult PostChangeEtat()
+        {
+
+        }*/
     }
 }
