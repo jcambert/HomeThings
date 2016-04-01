@@ -1,32 +1,4 @@
 ﻿<div class="row">
-   <!-- <div class="col-md-12 col-sm-12 col-xs-12">
-        <w-panel>
-            <w-panel-header title="Rechercher">
-                <w-panel-toolbox>
-                    <w-panel-toolbox-chevron>
-                    </w-panel-toolbox-chevron>
-                    <w-panel-toolbox-tool>
-                        <w-panel-toolbox-tool-item divider>
-                            <a href="#">Settings 1</a>
-                        </w-panel-toolbox-tool-item>
-                        <w-panel-toolbox-tool-item>
-                            <a href="#">Settings 2</a>
-                        </w-panel-toolbox-tool-item>
-                    </w-panel-toolbox-tool>
-                    <w-panel-toolbox-close>
-                    </w-panel-toolbox-close>
-
-                </w-panel-toolbox>
-            </w-panel-header>
-            <w-panel-content>
-                <w-search-box class="col-md-12 col-sm-6 col-xs-12 " fields="searchFields">
-                </w-search-box>
-
-
-            </w-panel-content>
-        </w-panel>
-    </div>-->
-    
 
     <div class="col-md-12 col-sm-12 col-xs-12">
         <w-panel>
@@ -48,7 +20,7 @@
                 </w-panel-toolbox>
             </w-panel-header>
             <w-panel-content>
-                <a class="btn btn-app" uib-tooltip="{{'add-thing-tooltip'|translate}}">
+                <a class="btn btn-app" uib-tooltip="{{'add-thing-tooltip'|translate}}" ng-click="wantAddThing()">
                     <i class="fa fa-plus"></i> {{ 'add' | translate }}
                 </a>
                 <a class="btn btn-app" uib-tooltip="{{'detect-thing-tooltip'|translate}}">
@@ -84,8 +56,8 @@
             <w-panel-content>
                 <table ng-table="tableParams" class="table table-condensed table-bordered table-striped">
                     <tr ng-repeat="row in $data">
-                        <td data-title="'Nom'">{{ row.id }}</td>
-                        <td data-title="'Etat'">{{row.status }}</td>
+                        <td data-title="'Nom'">{{ row.name }}</td>
+                        <td data-title="'Etat'"><span class="label " ng-class="row.status==1?'label-success':'label-danger'">&nbsp;</span></td>
                         <td data-title="'Statut'"></td>
                         <td data-title="'Ip'"></td>
                         <td data-title="'Dernière activité'"></td>

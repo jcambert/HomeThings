@@ -11,6 +11,10 @@ namespace HomeThings.Server
     [HubName("HomeThings")]
     public class HomeThingsHub : Hub
     {
+        public override Task OnConnected()
+        {
+            return base.OnConnected();
+        }
 
     }
 }

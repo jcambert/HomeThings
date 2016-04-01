@@ -66,6 +66,7 @@ namespace HomeThings.Server
         public virtual void Delete(object id)
         {
             TEntity entityToDelete = dbSet.Find(id);
+            if(entityToDelete!= null)
             Delete(entityToDelete);
         }
 

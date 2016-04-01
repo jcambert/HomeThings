@@ -32,7 +32,8 @@
         return {
             BASE_DIR: partial_dir,
             DASHBOARD: partial_dir + 'dashboard.partial.html',
-            HOME: partial_dir + 'home.partial.html'
+            HOME: partial_dir + 'home.partial.html',
+            ADD_THING: partial_dir + 'add.things.partial.html'
         }
     })());
 
@@ -65,7 +66,7 @@
     }]);
 
 
-    app.factory('Hub', ['$','$rootScope', '$log', function ($,$rootScope, $log) {
+    app.service('Hub', ['$','$rootScope', '$log', function ($,$rootScope, $log) {
         //This will allow same connection to be used for all Hubs
         //It also keeps connection as singleton.
         var globalConnections = [];
@@ -99,10 +100,12 @@
 
             Hub.connection = getConnection(options);
             Hub.proxy = Hub.connection.createHubProxy(hubName);
-
+            
             Hub.on = function (event, fn) {
                 Hub.proxy.on(event, fn);
             };
+
+            Hub.on('', function () { console.log('ADDTHING'); });
             Hub.invoke = function (method, args) {
                 return Hub.proxy.invoke.apply(Hub.proxy, arguments)
             };
@@ -159,7 +162,7 @@
     app.factory('Things', ['$rootScope', 'Hub','HubName', '$timeout', '$log', function ($rootScope, Hub,HubName, $timeout, $log) {
         //declaring the hub connection
         var hub = new Hub(HubName, {
-
+            useSharedConnection:true,
             //client side methods
            /* listeners: {
                 'lockEmployee': function (id) {
@@ -218,9 +221,12 @@
         var done = function (employee) {
             hub.unlock(employee.Id); //Calling a server method
         }*/
-
+        var stop = function () {
+            hub.stop();
+        }
         return {
-            on:hub.on,
+            on: hub.on,
+            stop:stop,
             /*editEmployee: edit,
             doneWithEmployee: done*/
         };
@@ -705,7 +711,20 @@
         };
     });
 
-    app.controller('mainCtrl', ['$scope',function ($scope) {
+    app.directive('shortcut',['$', function ($) {
+        return {
+            restrict: 'E',
+            replace: true,
+            scope: true,
+            link: function postLink(scope, iElement, iAttrs) {
+                $(document).on('keypress', function (e) {
+                    scope.$apply(scope.keyPressed(e));
+                });
+            }
+        };
+    }]);
+
+    app.controller('mainCtrl', ['$scope', '$uibModal', 'ThingsApi','Things', 'Partials', '$log', function ($scope, $uibModal,$thingsapi,$thingshub, $partials, $log) {
         $scope.appTitle = "Home Things";
         $scope.appIcon = 'pagelines';
         $scope.user = { photo: 'resources/photo.jpg', firstname: "Jean-Christophe", lastname: "Ambert", fullname: 'Ambert Jean-Christophe' };
@@ -767,35 +786,42 @@
                     ]
                 }
             ]
-        }];/*
-            
-            {
-                icon:'home',
-                text:'Accueil',
-                items:[
-                    {
-                        id:0,
-                        text:'accueil 1',
-                        state:'state1'
-                    },
-                    {
-                        id:1,
-                        text:'accueil 2',
-                        link:'state2'
-                    },
-                ]
-            },
-            {
-                icon:'edit',
-                text:'Forms'
-            }
-        ];*/
+        }];
 
+        $scope.animationsEnabled = true;
+
+        $scope.wantAddThing = function (size) {
+            size = size | 'lg';
+            var modalInstance = $uibModal.open({
+                animation: $scope.animationsEnabled,
+                templateUrl: $partials.ADD_THING,
+                controller: 'addThingController',
+                size: size,
+                /*resolve: {
+                    items: function () {
+                        return $scope.items;
+                    }
+                }*/
+            });
+
+            modalInstance.result.then(function (item) {
+                //var selected = selectedItem;
+                $log.log('Want add thing with id:'+item.id)
+                $thingsapi.save(item);
+            }, function () {
+                $log.info('Modal dismissed at: ' + new Date());
+            });
+
+           
+            $log.log($thingshub);
+        };
+
+       /* $scope.keyPressed = function (e) {
+            $log.log(e);
+        }*/
     }]);
 
-    app.controller('thingsController', ['$scope', 'ThingsApi','Things', 'NgTableParams', '$log', function ($scope, $thingsapi,$thingshub, NgTableParams, $log) {
-       
-        //$scope.things = $things.query();
+    app.controller('thingsController', ['$scope', 'ThingsApi', 'Things', 'NgTableParams', '$log', function ($scope, $thingsapi, $thingshub, NgTableParams,  $log) {
 
         $scope.tableParams = new NgTableParams({}, {
             getData: function (params) {
@@ -823,6 +849,25 @@
             $log.log('reload things table');
         });
 
+        $thingshub.on('AddThing', function (id) {
+            $log.log('Things added on server');
+            $scope.tableParams.reload();
+            $log.log('reload things table');
+        });
+
+    }]);
+
+    app.controller('addThingController', ['$scope', '$uibModalInstance', function ($scope, $uibModalInstance) {
+        $scope.item = {};
+        
+
+        $scope.ok = function () {
+            $uibModalInstance.close($scope.item);
+        };
+
+        $scope.cancel = function () {
+            $uibModalInstance.dismiss('cancel');
+        };
     }]);
 
     app.directive('dashboard',['Partials', function ($partials) {

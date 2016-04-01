@@ -12,6 +12,7 @@ namespace HomeThings.Server.Controllers
     public abstract class ApiControllerWithHub<THub> : ApiController
         where THub : IHub
     {
+       
         Lazy<IHubContext> hub = new Lazy<IHubContext>(
             () => GlobalHost.ConnectionManager.GetHubContext<THub>()
         );
@@ -23,5 +24,7 @@ namespace HomeThings.Server.Controllers
         protected IHubContext Hub=> hub.Value;
 
         protected IUnitOfWork UnitOfWork => uow.Value;
+
+       
     }
 }

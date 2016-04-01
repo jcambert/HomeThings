@@ -10,6 +10,7 @@ namespace HomeThings.Server
     {
 
         public Status Status { get; set; }
+        public string  Name { get; set; }
     }
 
     public enum Status

@@ -35,5 +35,7 @@
   "add-thing-tooltip": "Ajouter un Thing",
   "detect-thing-tooltip": "Rechercher des nouveaux Thing",
   "scenario-tooltip": "Gestion des scenarii",
+  "ok": "Valider",
+  "cancel": "Annuler",
   "x": "x"
 }

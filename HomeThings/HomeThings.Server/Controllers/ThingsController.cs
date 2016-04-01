@@ -9,11 +9,25 @@ using System.Web.Http;
 namespace HomeThings.Server.Controllers
 {
 
-    public class ThingsController:ApiControllerWithHub<HomeThingsHub>
+    public class ThingsController : ApiControllerWithHub<HomeThingsHub>
     {
-        
+
         public ThingsController()
         {
+         /*   ((HomeThingsHub)Hub).OnConnected().ContinueWith((a) =>
+            {
+                if (Repository.Count() == 0)
+                {
+                    
+                    
+
+                    for (int i = 1; i < 11; i++)
+                    {
+                        Repository.Insert(new Thing() { Id = i, Status = Status.Autonome });
+                    }
+                }
+                UnitOfWork.Save();
+            });*/
         }
 
         public IRepository<Thing> Repository => UnitOfWork.ThingRepository;
@@ -26,14 +40,14 @@ namespace HomeThings.Server.Controllers
                 {
                     Repository.Insert(thing);
                     UnitOfWork.Save();
-                    Hub.Clients.All.Add(thing);
+                    Hub.Clients.All.AddThing();
                 }
                 return Ok(thing);
             }
             catch (DataException ex)
             {
                 ModelState.AddModelError("", ex);
-              
+
             }
             return this.Conflict();
         }
@@ -42,50 +56,44 @@ namespace HomeThings.Server.Controllers
         {
             Repository.Delete(id);
             UnitOfWork.Save();
-            Hub.Clients.All.RemoveThing(id);
+            Hub.Clients.All.RemoveThing("");
             return Ok();
         }
 
         public IQueryable<Thing> Get()
         {
-/*#if DEBUG
-            if (Repository.Count() == 0)
-            {
-                Repository.Insert(new Thing() { Id = 1, Status = Status.Autonome });
-                UnitOfWork.Save();
-            }
-#endif*/
-                return UnitOfWork.ThingRepository.Get();
+            
+            return UnitOfWork.ThingRepository.Get();
         }
 
-      /*  public IHttpActionResult PostDetecter()
-        {
+        /*  public IHttpActionResult PostDetecter()
+          {
 
-        }
+          }
 
-        public IHttpActionResult PostConnecter()
-        {
+          public IHttpActionResult PostConnecter()
+          {
 
-        }
+          }
 
-        public IHttpActionResult PostDeconnecter()
-        {
+          public IHttpActionResult PostDeconnecter()
+          {
 
-        }
+          }
 
-        public IHttpActionResult PostActionner()
-        {
+          public IHttpActionResult PostActionner()
+          {
 
-        }
+          }
 
-        public IHttpActionResult PostLireEtat()
-        {
+          public IHttpActionResult PostLireEtat()
+          {
 
-        }
+          }
 
-        public IHttpActionResult PostChangeEtat()
-        {
+          public IHttpActionResult PostChangeEtat()
+          {
 
-        }*/
+          }*/
     }
 }

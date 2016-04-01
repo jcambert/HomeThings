@@ -193,6 +193,8 @@
   <ItemGroup>
     <Content Include="Content\ng-table.css" />
     <Content Include="Content\ng-table.min.css" />
+    <EmbeddedResource Include="partials\add.things.partial.html" />
+    <EmbeddedResource Include="favicon.png" />
     <Content Include="Scripts\ng-table.js" />
     <EmbeddedResource Include="Scripts\ng-table.min.js" />
     <EmbeddedResource Include="403.html" />
