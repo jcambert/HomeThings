@@ -1,8 +1,13 @@
 ﻿(function (window, document, undefined) {
     'use strict';
     var angular = window.angular;
-    var app = window.app = angular.module('homeThingsApplication', ['ngAnimate', 'ngCookies', 'ui.bootstrap', 'ui.router', 'pascalprecht.translate']);
+    var app = window.app = angular.module('homeThingsApplication', ['ngAnimate', 'ngCookies','ngTable','ngResource', 'ui.bootstrap', 'ui.router', 'pascalprecht.translate']);
     
+
+    app.constant('$', window.jQuery);
+
+    app.constant('HubName', 'HomeThings');
+
     app.constant('LOCALES', {
         'locales': {
             // 'ru_RU': 'Русский',
@@ -11,17 +16,27 @@
         'preferredLocale': 'fr_FR'
     });
 
+    app.constant('EndPoints', (function () {
+        var partial_dir = 'http://localhost:8081/api/';
+
+        return {
+            BASE_DIR: partial_dir,
+            THINGS: partial_dir + 'things'
+
+        }
+    })());
+
     app.constant('Partials', (function () {
         var partial_dir = 'partials/';
 
         return {
             BASE_DIR: partial_dir,
-            DASHBOARD: partial_dir + 'dashboard.partial.html'
-
+            DASHBOARD: partial_dir + 'dashboard.partial.html',
+            HOME: partial_dir + 'home.partial.html'
         }
     })());
 
-    app.config(['$stateProvider', '$urlRouterProvider', '$logProvider', '$translateProvider', function ($stateProvider, $urlRouterProvider, $log, $translateProvider) {
+    app.config(['$stateProvider', '$urlRouterProvider', '$logProvider', '$translateProvider','Partials', function ($stateProvider, $urlRouterProvider, $log, $translateProvider,$partials) {
         $log.debugEnabled(true);
 
         /* Translation*/
@@ -33,13 +48,221 @@
         });
         $translateProvider.preferredLanguage('fr_FR');
         $translateProvider.useLocalStorage();
-        /* /Translation */
+        /* Translation */
+        $urlRouterProvider.otherwise("/home");
+        $stateProvider.state('home', {
+            url:'/home',
+            templateUrl:$partials.HOME
+             
+        })
+
         console.info('HommeThings application is configured');
     }]);
 
     app.run(['$log', function ($log) {
         $log.log('HomeThings application is running');
         
+    }]);
+
+
+    app.factory('Hub', ['$','$rootScope', '$log', function ($,$rootScope, $log) {
+        //This will allow same connection to be used for all Hubs
+        //It also keeps connection as singleton.
+        var globalConnections = [];
+
+        function initNewConnection(options) {
+            var connection = null;
+            if (options && options.rootPath) {
+                connection = $.hubConnection(options.rootPath, { useDefaultPath: false });
+            } else {
+                connection = $.hubConnection();
+            }
+
+            connection.logging = (options && options.logging ? true : false);
+            return connection;
+        }
+
+        function getConnection(options) {
+            var useSharedConnection = !(options && options.useSharedConnection === false);
+            if (useSharedConnection) {
+                return typeof globalConnections[options.rootPath] === 'undefined' ?
+                globalConnections[options.rootPath] = initNewConnection(options) :
+                globalConnections[options.rootPath];
+            }
+            else {
+                return initNewConnection(options);
+            }
+        }
+
+        return function (hubName, options) {
+            var Hub = this;
+
+            Hub.connection = getConnection(options);
+            Hub.proxy = Hub.connection.createHubProxy(hubName);
+
+            Hub.on = function (event, fn) {
+                Hub.proxy.on(event, fn);
+            };
+            Hub.invoke = function (method, args) {
+                return Hub.proxy.invoke.apply(Hub.proxy, arguments)
+            };
+            Hub.disconnect = function () {
+                Hub.connection.stop();
+            };
+            Hub.connect = function () {
+                var startOptions = {};
+                if (options.transport) startOptions.transport = options.transport;
+                if (options.jsonp) startOptions.jsonp = options.jsonp;
+                if (angular.isDefined(options.withCredentials)) startOptions.withCredentials = options.withCredentials;
+                return Hub.connection.start(startOptions);
+            };
+
+            if (options && options.listeners) {
+                Object.getOwnPropertyNames(options.listeners)
+                .filter(function (propName) {
+                    return typeof options.listeners[propName] === 'function';
+                })
+                    .forEach(function (propName) {
+                        Hub.on(propName, options.listeners[propName]);
+                    });
+            }
+            if (options && options.methods) {
+                angular.forEach(options.methods, function (method) {
+                    Hub[method] = function () {
+                        var args = $.makeArray(arguments);
+                        args.unshift(method);
+                        return Hub.invoke.apply(Hub, args);
+                    };
+                });
+            }
+            if (options && options.queryParams) {
+                Hub.connection.qs = options.queryParams;
+            }
+            if (options && options.errorHandler) {
+                Hub.connection.error(options.errorHandler);
+            }
+            if (options && options.stateChanged) {
+                Hub.connection.stateChanged(options.stateChanged);
+            }
+
+            //Adding additional property of promise allows to access it in rest of the application.
+            if (options.autoConnect === undefined || options.autoConnect) {
+                Hub.promise = Hub.connect();
+            }
+
+            return Hub;
+        };
+
+
+    }]);
+
+    app.factory('Things', ['$rootScope', 'Hub','HubName', '$timeout', '$log', function ($rootScope, Hub,HubName, $timeout, $log) {
+        //declaring the hub connection
+        var hub = new Hub(HubName, {
+
+            //client side methods
+           /* listeners: {
+                'lockEmployee': function (id) {
+                    var employee = find(id);
+                    employee.Locked = true;
+                    $rootScope.$apply();
+                },
+                'unlockEmployee': function (id) {
+                    var employee = find(id);
+                    employee.Locked = false;
+                    $rootScope.$apply();
+                }
+            },*/
+
+            //server side methods
+           // methods: ['deleteThing'],
+
+            //query params sent on initial connection
+           /* queryParams: {
+                'token': 'exampletoken'
+            },*/
+
+            //handle connection error
+            errorHandler: function (error) {
+                console.error(error);
+            },
+
+            //specify a non default root
+            //rootPath: '/api
+
+            stateChanged: function (state) {
+                switch (state.newState) {
+                    case $.signalR.connectionState.connecting:
+                        $log.log(HubName + ' connecting');
+                        //your code here
+                        break;
+                    case $.signalR.connectionState.connected:
+                        $log.log(HubName + ' connected');
+                        //your code here
+                        break;
+                    case $.signalR.connectionState.reconnecting:
+                        $log.log(HubName + ' reconnecting');
+                        //your code here
+                        break;
+                    case $.signalR.connectionState.disconnected:
+                        $log.log(HubName + ' disconnecting');
+                        //your code here
+                        break;
+                }
+            }
+        });
+
+        /*var edit = function (employee) {
+            hub.lock(employee.Id); //Calling a server method
+        };
+        var done = function (employee) {
+            hub.unlock(employee.Id); //Calling a server method
+        }*/
+
+        return {
+            on:hub.on,
+            /*editEmployee: edit,
+            doneWithEmployee: done*/
+        };
+    }]);
+
+    app.service('ThingsApi', ['$resource', 'EndPoints', function ($resource, $end) {
+        return $resource($end.THINGS + '/:action/:id/', { id: '@_id' }, {
+            update: {
+                method: 'PUT'
+            },
+            first: {
+                method: 'GET',
+                params: {
+                    action: 'First'
+                }
+            },
+            last: {
+                method: 'GET',
+                params: {
+                    action: 'Last'
+                }
+            },
+            next: {
+                method: 'GET',
+                params: {
+                    action: 'Next',
+                }
+            },
+            previous: {
+                method: 'GET',
+                params: {
+                    action: 'Previous',
+                }
+            },
+            delete:{
+                method:'DELETE'
+            },
+            get: {
+                method: 'GET',
+
+            }
+        });
     }]);
 
     app.directive('wSidebar', ['$log', '$timeout', function ($log, $timeout) {
@@ -567,6 +790,38 @@
                 text:'Forms'
             }
         ];*/
+
+    }]);
+
+    app.controller('thingsController', ['$scope', 'ThingsApi','Things', 'NgTableParams', '$log', function ($scope, $thingsapi,$thingshub, NgTableParams, $log) {
+       
+        //$scope.things = $things.query();
+
+        $scope.tableParams = new NgTableParams({}, {
+            getData: function (params) {
+                // ajax request to api
+                return $thingsapi.query().$promise.then(function (data) {
+                    //$log.log(data.results);
+                    //params.total(data.inlineCount); // recal. page nav controls
+                    return data;//.results;
+                });
+            }
+        });
+
+        $scope.delete = function (id) {
+            $log.log('want delete things by id:' + id);
+            $thingsapi.delete({ id: id });/*.$promise.then(function () {
+                $log.log('Things deleted on server');
+                $scope.tableParams.reload();
+                $log.log('reload things table');
+            });*/
+        };
+
+        $thingshub.on('RemoveThing', function (id) {
+            $log.log('Things deleted on server');
+            $scope.tableParams.reload();
+            $log.log('reload things table');
+        });
 
     }]);
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.Owin.Hosting;
+﻿using Microsoft.Owin.Cors;
+using Microsoft.Owin.Hosting;
 using Microsoft.Owin.StaticFiles;
 using Microsoft.Owin.StaticFiles.ContentTypes;
 using Newtonsoft.Json;
@@ -67,7 +68,7 @@ namespace HomeThings.Server
         public void Configuration(IAppBuilder appBuilder)
         {
             //appBuilder.Use<InterceptResponseMiddleware>(appBuilder);
-            appBuilder.Use<PageHandlerMiddleware>(appBuilder);
+            //appBuilder.Use<PageHandlerMiddleware>(appBuilder);
 
             ConfigureSignalR(appBuilder);
 
@@ -78,6 +79,7 @@ namespace HomeThings.Server
 
         private void ConfigureSignalR(IAppBuilder appBuilder)
         {
+            appBuilder.UseCors(CorsOptions.AllowAll);
             appBuilder.MapSignalR();
         }
 

@@ -1,0 +1,103 @@
+﻿<div class="row">
+   <!-- <div class="col-md-12 col-sm-12 col-xs-12">
+        <w-panel>
+            <w-panel-header title="Rechercher">
+                <w-panel-toolbox>
+                    <w-panel-toolbox-chevron>
+                    </w-panel-toolbox-chevron>
+                    <w-panel-toolbox-tool>
+                        <w-panel-toolbox-tool-item divider>
+                            <a href="#">Settings 1</a>
+                        </w-panel-toolbox-tool-item>
+                        <w-panel-toolbox-tool-item>
+                            <a href="#">Settings 2</a>
+                        </w-panel-toolbox-tool-item>
+                    </w-panel-toolbox-tool>
+                    <w-panel-toolbox-close>
+                    </w-panel-toolbox-close>
+
+                </w-panel-toolbox>
+            </w-panel-header>
+            <w-panel-content>
+                <w-search-box class="col-md-12 col-sm-6 col-xs-12 " fields="searchFields">
+                </w-search-box>
+
+
+            </w-panel-content>
+        </w-panel>
+    </div>-->
+    
+
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <w-panel>
+            <w-panel-header title="{{'thing-management' |translate}}">
+                <w-panel-toolbox>
+                    <w-panel-toolbox-chevron>
+                    </w-panel-toolbox-chevron>
+                    <w-panel-toolbox-tool>
+                        <w-panel-toolbox-tool-item divider>
+                            <a href="#">Settings 1</a>
+                        </w-panel-toolbox-tool-item>
+                        <w-panel-toolbox-tool-item>
+                            <a href="#">Settings 2</a>
+                        </w-panel-toolbox-tool-item>
+                    </w-panel-toolbox-tool>
+                    <w-panel-toolbox-close>
+                    </w-panel-toolbox-close>
+
+                </w-panel-toolbox>
+            </w-panel-header>
+            <w-panel-content>
+                <a class="btn btn-app" uib-tooltip="{{'add-thing-tooltip'|translate}}">
+                    <i class="fa fa-plus"></i> {{ 'add' | translate }}
+                </a>
+                <a class="btn btn-app" uib-tooltip="{{'detect-thing-tooltip'|translate}}">
+                    <i class="fa fa-search"></i> {{ 'detect' | translate }}
+                </a>
+                <a class="btn btn-app" uib-tooltip="{{'scenario-tooltip'|translate}}">
+                    <i class="fa fa-motorcycle"></i> {{ 'scenario' | translate }}
+                </a>
+                
+            </w-panel-content>
+        </w-panel>
+    </div>
+
+    <div class="col-md-12 col-sm-12 col-xs-12" ng-controller="thingsController ">
+        <w-panel>
+            <w-panel-header title="{{'thing-list' |translate}}">
+                <w-panel-toolbox>
+                    <w-panel-toolbox-chevron>
+                    </w-panel-toolbox-chevron>
+                    <w-panel-toolbox-tool>
+                        <w-panel-toolbox-tool-item divider>
+                            <a href="#">Settings 1</a>
+                        </w-panel-toolbox-tool-item>
+                        <w-panel-toolbox-tool-item>
+                            <a href="#">Settings 2</a>
+                        </w-panel-toolbox-tool-item>
+                    </w-panel-toolbox-tool>
+                    <w-panel-toolbox-close>
+                    </w-panel-toolbox-close>
+
+                </w-panel-toolbox>
+            </w-panel-header>
+            <w-panel-content>
+                <table ng-table="tableParams" class="table table-condensed table-bordered table-striped">
+                    <tr ng-repeat="row in $data">
+                        <td data-title="'Nom'">{{ row.id }}</td>
+                        <td data-title="'Etat'">{{row.status }}</td>
+                        <td data-title="'Statut'"></td>
+                        <td data-title="'Ip'"></td>
+                        <td data-title="'Dernière activité'"></td>
+                        <td data-title="'Action'">
+                            <a class="btn btn-info btn-sm" ng-click="connect(row.id)" uib-tooltip="{{'connect'|translate}}"><i class="fa fa-link"></i></a>
+                            <a  class="btn btn-info btn-sm" ng-click="disconnect(row.id)" uib-tooltip="{{'disconnect'|translate}}"><i class="fa fa-chain-broken"></i></a>
+                            <a class="btn btn-info btn-sm" ng-click="delete(row.id)" uib-tooltip="{{'delete'|translate}}"><i class="fa fa-trash"></i></a>
+                        </td>
+                    </tr>
+                </table>
+
+            </w-panel-content>
+        </w-panel>
+    </div>
+</div>

@@ -38,21 +38,23 @@ namespace HomeThings.Server.Controllers
             return this.Conflict();
         }
 
-        public IHttpActionResult Remove(Thing things)
+        public IHttpActionResult Delete(int id)
         {
-            Hub.Clients.All.Remove(things);
+            Repository.Delete(id);
+            UnitOfWork.Save();
+            Hub.Clients.All.RemoveThing(id);
             return Ok();
         }
 
         public IQueryable<Thing> Get()
         {
-#if DEBUG
+/*#if DEBUG
             if (Repository.Count() == 0)
             {
                 Repository.Insert(new Thing() { Id = 1, Status = Status.Autonome });
                 UnitOfWork.Save();
             }
-#endif
+#endif*/
                 return UnitOfWork.ThingRepository.Get();
         }
 

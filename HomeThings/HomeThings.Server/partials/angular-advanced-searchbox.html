@@ -1,0 +1,36 @@
+﻿<div>
+    <div class="btn-toolbar" role="toolbar" aria-label="...">
+        <div class="btn-group" role="group" aria-label="...">
+            <a role="button"><i class="btn fa fa-save fa-2x"></i></a>
+            <a role="button" ng-click="add()"><i class="btn fa fa-plus fa-2x"></i></a>
+        </div>
+
+    </div>
+    <div>
+        <table class="table">
+            <thead>
+                <tr><th>Champs:</th><th>Operateur</th><th>Valeur</th><th>&nbsp;</th></tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="line in lines">
+                    <td>
+                        <select ng-options="field as field.label for field in fields track by field.value" ng-model="line.field"></select>
+                    </td>
+                    <td>
+                        <select ng-options="operator as operator.label for operator in operators track by $index" ng-model="line.operator"></select>
+                    </td>
+                    <td ng-switch="line.field.type">
+                        <input ng-switch-when="alpha" type="text" ng-model="line.value">
+                        <select ng-switch-when="choice" ng-options="choice as choice.label for choice in line.field.choices track by choice.value" ng-model="line.value"></select>
+                    </td>
+                    <td>
+                        <a ng-click="remove($index)"> <i class="btn fa fa-trash"></i> </a>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+
+            </tfoot>
+        </table>
+    </div>
+</div>
