@@ -9,30 +9,31 @@ using System.Web.Http;
 namespace HomeThings.Server.Controllers
 {
 
-    public class ThingsController : ApiControllerWithHub<HomeThingsHub>
+    public class ThingsController : ApiControllerWithHub<Thing, HomeThingsHub>
     {
 
         public ThingsController()
         {
-         /*   ((HomeThingsHub)Hub).OnConnected().ContinueWith((a) =>
-            {
-                if (Repository.Count() == 0)
-                {
-                    
-                    
-
-                    for (int i = 1; i < 11; i++)
-                    {
-                        Repository.Insert(new Thing() { Id = i, Status = Status.Autonome });
-                    }
-                }
-                UnitOfWork.Save();
-            });*/
+        
         }
 
-        public IRepository<Thing> Repository => UnitOfWork.ThingRepository;
+        public override IRepository<Thing> Repository => UnitOfWork.ThingRepository;
 
-        public IHttpActionResult PostThings(Thing thing)
+        //public IRepository<Thing> Repository => UnitOfWork.ThingRepository;
+
+
+        protected override void AfterInsert(Thing entity)
+        {
+            base.AfterInsert(entity);
+            Hub.Clients.All.AddThing();
+        }
+
+        protected override void AfterDelete(int id)
+        {
+            base.AfterDelete(id);
+            Hub.Clients.All.RemoveThing(id);
+        }
+        /*public IHttpActionResult PostThings(Thing thing)
         {
             try
             {
@@ -64,7 +65,7 @@ namespace HomeThings.Server.Controllers
         {
             
             return UnitOfWork.ThingRepository.Get();
-        }
+        }*/
 
         /*  public IHttpActionResult PostDetecter()
           {

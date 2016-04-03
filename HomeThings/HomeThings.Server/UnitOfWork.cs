@@ -11,6 +11,7 @@ namespace HomeThings.Server
 
         private ThingsContext context = new ThingsContext();
         private IRepository<Thing> thingRepository;
+        private IRepository<Setting> settingRepository;
 
         public IRepository<Thing> ThingRepository
         {
@@ -24,7 +25,20 @@ namespace HomeThings.Server
                 return thingRepository;
             }
         }
-        
+
+        public IRepository<Setting> SettingRepository
+        {
+            get
+            {
+
+                if (this.settingRepository == null)
+                {
+                    this.settingRepository = new GenericRepository<Setting>(context);
+                }
+                return settingRepository;
+            }
+        }
+
         public void Save()
         {
             context.SaveChanges();
@@ -59,5 +73,6 @@ namespace HomeThings.Server
     {
         void Save();
         IRepository<Thing> ThingRepository { get; }
+        IRepository<Setting> SettingRepository { get; }
     }
 }

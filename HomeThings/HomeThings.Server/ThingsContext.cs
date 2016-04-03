@@ -9,13 +9,15 @@ using System.Threading.Tasks;
 
 namespace HomeThings.Server
 {
-    public class ThingsContext:DbContext
+    public class ThingsContext : DbContext
     {
-        public ThingsContext():base("ThingsContext")
+        public ThingsContext() : base("ThingsContext")
         {
-           // Database.SetInitializer(new CreateDatabaseIfNotExists<ThingsContext>());
+            // Database.SetInitializer(new CreateDatabaseIfNotExists<ThingsContext>());
         }
         public DbSet<Thing> Things { get; set; }
+
+        public DbSet<Setting> Settings{get;set;}
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

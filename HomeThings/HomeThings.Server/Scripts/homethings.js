@@ -1,11 +1,11 @@
-﻿(function (window, document, undefined) {
+﻿(function (window, document, _) {
     'use strict';
     var angular = window.angular;
-    var app = window.app = angular.module('homeThingsApplication', ['ngAnimate', 'ngCookies','ngTable','ngResource', 'ui.bootstrap', 'ui.router', 'pascalprecht.translate']);
+    var app = window.app = angular.module('homeThingsApplication', ['ngAnimate', 'ngCookies', 'ngTable', 'ngResource', 'ui.bootstrap', 'ui.router', 'pascalprecht.translate', 'toggle-switch']);
     
-
+   
     app.constant('$', window.jQuery);
-
+    app.constant('_', _);
     app.constant('HubName', 'HomeThings');
 
     app.constant('LOCALES', {
@@ -21,19 +21,21 @@
 
         return {
             BASE_DIR: partial_dir,
-            THINGS: partial_dir + 'things'
-
+            THINGS: partial_dir + 'things',
+            SETTINGS: partial_dir + 'settings'
+    
         }
     })());
 
     app.constant('Partials', (function () {
         var partial_dir = 'partials/';
-
+        var ext = '.partial.html';
         return {
             BASE_DIR: partial_dir,
-            DASHBOARD: partial_dir + 'dashboard.partial.html',
-            HOME: partial_dir + 'home.partial.html',
-            ADD_THING: partial_dir + 'add.things.partial.html'
+            DASHBOARD: partial_dir + 'dashboard'+ext,
+            HOME: partial_dir + 'home'+ext,
+            ADD_THING: partial_dir + 'add.things'+ext,
+            UPDATE_SETTINGS: partial_dir + 'settings'+ext
         }
     })());
 
@@ -97,7 +99,7 @@
 
         return function (hubName, options) {
             var Hub = this;
-
+            Hub.connected = false;
             Hub.connection = getConnection(options);
             Hub.proxy = Hub.connection.createHubProxy(hubName);
             
@@ -107,7 +109,8 @@
 
             Hub.on('', function () { console.log('ADDTHING'); });
             Hub.invoke = function (method, args) {
-                return Hub.proxy.invoke.apply(Hub.proxy, arguments)
+                //if(Hub.connected)
+                    return Hub.proxy.invoke.apply(Hub.proxy, arguments)
             };
             Hub.disconnect = function () {
                 Hub.connection.stop();
@@ -152,14 +155,14 @@
             if (options.autoConnect === undefined || options.autoConnect) {
                 Hub.promise = Hub.connect();
             }
-
+            $log.log(Hub);
             return Hub;
         };
 
 
     }]);
 
-    app.factory('Things', ['$rootScope', 'Hub','HubName', '$timeout', '$log', function ($rootScope, Hub,HubName, $timeout, $log) {
+    app.service('Things', ['$rootScope', 'Hub','HubName', '$timeout', '$log', function ($rootScope, Hub,HubName, $timeout, $log) {
         //declaring the hub connection
         var hub = new Hub(HubName, {
             useSharedConnection:true,
@@ -201,6 +204,7 @@
                         break;
                     case $.signalR.connectionState.connected:
                         $log.log(HubName + ' connected');
+                        this.connected = true;
                         //your code here
                         break;
                     case $.signalR.connectionState.reconnecting:
@@ -210,23 +214,35 @@
                     case $.signalR.connectionState.disconnected:
                         $log.log(HubName + ' disconnecting');
                         //your code here
+                        connected = false;
                         break;
                 }
             }
         });
 
+        
         /*var edit = function (employee) {
             hub.lock(employee.Id); //Calling a server method
         };
         var done = function (employee) {
             hub.unlock(employee.Id); //Calling a server method
         }*/
-        var stop = function () {
-            hub.stop();
+        var hubStart = function (init) {
+            return hub.connect().done(init);
+        };
+
+        var updateStatus = function () {
+            hub.invoke('UpdateStatus');
+        };
+
+        var isConnected = function () {
+            return hub.connected;
         }
         return {
             on: hub.on,
-            stop:stop,
+            start: hubStart,
+            updateStatus: updateStatus,
+            isConnected:isConnected
             /*editEmployee: edit,
             doneWithEmployee: done*/
         };
@@ -263,6 +279,22 @@
             },
             delete:{
                 method:'DELETE'
+            },
+            get: {
+                method: 'GET',
+
+            }
+        });
+    }]);
+
+    app.service('SettingsApi', ['$resource', 'EndPoints', function ($resource, $end) {
+        return $resource($end.SETTINGS + '/:action/:id/', { id: '@_id' }, {
+            update: {
+                method: 'PUT'
+            },
+           
+            delete: {
+                method: 'DELETE'
             },
             get: {
                 method: 'GET',
@@ -724,7 +756,9 @@
         };
     }]);
 
-    app.controller('mainCtrl', ['$scope', '$uibModal', 'ThingsApi','Things', 'Partials', '$log', function ($scope, $uibModal,$thingsapi,$thingshub, $partials, $log) {
+    app.controller('mainCtrl', ['$scope','$interval', '$uibModal', 'ThingsApi','Things','SettingsApi', 'Partials', '$log', function ($scope,$interval, $uibModal,$thingsapi,$thingshub,$settingsapi, $partials, $log) {
+        var autorefresh = undefined;
+
         $scope.appTitle = "Home Things";
         $scope.appIcon = 'pagelines';
         $scope.user = { photo: 'resources/photo.jpg', firstname: "Jean-Christophe", lastname: "Ambert", fullname: 'Ambert Jean-Christophe' };
@@ -790,6 +824,37 @@
 
         $scope.animationsEnabled = true;
 
+        $settingsapi.query().$promise.then(function (result) {
+            $scope.settings = result[0];
+            $log.log('Settings:'); $log.log($scope.settings);
+            $scope.$watch('settings.automaticRefreshTime', function change(newValue, oldValue) {
+                $log.log('refresh time changed');
+                restartAutoRefresh();
+            });
+            $scope.$watch('settings.manualRefreshMode', function change(newValue, oldValue) {
+                $log.log('manual refresh mode changed');
+                restartAutoRefresh();
+            });
+        });
+
+        function restartAutoRefresh() {
+            stopAutoRefresh();
+            startAutoRefresh();
+        }
+        function startAutoRefresh() {
+            if (!$scope.settings.manualRefreshMode) {
+                autorefresh = $interval(function () { $thingshub.updateStatus(); }, $scope.settings.automaticRefreshTime);
+                $log.log('start auto refresh');
+            }
+        }
+
+        function stopAutoRefresh() {
+            if (angular.isDefined(autorefresh)) {
+                $interval.cancel(autorefresh);
+                autorefresh = undefined;
+                $log.log('stop auto refresh');
+            }
+        }
         $scope.wantAddThing = function (size) {
             size = size | 'lg';
             var modalInstance = $uibModal.open({
@@ -816,18 +881,61 @@
             $log.log($thingshub);
         };
 
+        $scope.modifySettings = function (size) {
+            size = size | 'lg';
+            var modalInstance = $uibModal.open({
+                animation: $scope.animationsEnabled,
+                templateUrl: $partials.UPDATE_SETTINGS,
+                controller: 'modifySettingController',
+                size: size,
+                resolve: {
+                    settings: function () {
+                        return $scope.settings;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function (item) {
+                //var selected = selectedItem;
+                $log.log('Want add thing with id:' + item.id)
+                $scope.settings.automaticRefreshTime = item.automaticRefreshTime;
+                $scope.settings.manualRefreshMode = item.manualRefreshMode;
+                $settingsapi.save($scope.settings);
+            }, function () {
+                $log.info('Modal dismissed at: ' + new Date());
+            });
+
+
+            $log.log($thingshub);
+        };
+
+        
+
+        $scope.update = function () {
+            $log.log('Try to update manually from main controller')
+            $thingshub.updateStatus();
+        }
+        $thingshub.start(function () {
+            //Call the server side method for every 5 seconds
+           /* setInterval(function () {
+                if ($scope.manualMode) return;
+                console.log('try update periodically from main controller');
+                $thingshub.updateStatus();
+            }, $scope.settings.automaticRefreshTime);*/
+            startAutoRefresh();
+        });
        /* $scope.keyPressed = function (e) {
             $log.log(e);
         }*/
     }]);
 
-    app.controller('thingsController', ['$scope', 'ThingsApi', 'Things', 'NgTableParams', '$log', function ($scope, $thingsapi, $thingshub, NgTableParams,  $log) {
+    app.controller('thingsController', ['$scope', 'ThingsApi', 'Things', 'NgTableParams','_', '$log', function ($scope, $thingsapi, $thingshub, NgTableParams,_,  $log) {
 
         $scope.tableParams = new NgTableParams({}, {
             getData: function (params) {
                 // ajax request to api
                 return $thingsapi.query().$promise.then(function (data) {
-                    //$log.log(data.results);
+                    $log.log(data);
                     //params.total(data.inlineCount); // recal. page nav controls
                     return data;//.results;
                 });
@@ -855,6 +963,25 @@
             $log.log('reload things table');
         });
 
+        $thingshub.on('UpdateStatusResult', function (result) {
+            $log.log('Things Update Result');
+            //$log.log(result);
+            //$log.log($scope);
+            _.forEach(result, function (r) {
+                var index = _.findIndex($scope.tableParams.data, function (o) {return o.id == r.Id });
+                //$log.log(index);
+                //$log.log($scope.tableParams.data);
+                $log.log(r);
+                $scope.tableParams.data[index].state = Number(r.State);
+                $scope.tableParams.data[index].mode = Number(r.Mode);
+               // $log.log($scope.tableParams.data[index]);
+
+            });
+
+            $scope.$apply();
+        })
+       
+
     }]);
 
     app.controller('addThingController', ['$scope', '$uibModalInstance', function ($scope, $uibModalInstance) {
@@ -870,6 +997,19 @@
         };
     }]);
 
+    app.controller('modifySettingController', ['$scope', '$uibModalInstance','settings', function ($scope, $uibModalInstance,settings) {
+        $scope.settings = angular.copy(settings);
+
+
+        $scope.ok = function () {
+            $uibModalInstance.close($scope.settings);
+        };
+
+        $scope.cancel = function () {
+            $uibModalInstance.dismiss('cancel');
+        };
+    }]);
+
     app.directive('dashboard',['Partials', function ($partials) {
         return {
             restrict: 'E',
@@ -878,4 +1018,4 @@
         }
     }])
 
-})(window, document);
+})(window, document,_);

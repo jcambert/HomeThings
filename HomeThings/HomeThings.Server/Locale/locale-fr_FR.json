@@ -37,5 +37,7 @@
   "scenario-tooltip": "Gestion des scenarii",
   "ok": "Valider",
   "cancel": "Annuler",
+  "yes": "Oui",
+  "no": "Non",
   "x": "x"
 }

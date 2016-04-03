@@ -141,17 +141,20 @@
   <ItemGroup>
     <Compile Include="ContentTypeProvider.cs" />
     <Compile Include="Controllers\ApiControllerWithHub.cs" />
+    <Compile Include="Controllers\SettingsController.cs" />
     <Compile Include="Controllers\ThingsController.cs" />
     <Compile Include="Entity.cs" />
     <Compile Include="GenericRepository.cs" />
     <Compile Include="HomeThingsHub.cs" />
     <Compile Include="InterceptResponseMiddleware.cs" />
+    <Compile Include="IpAddressAttribute.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="PageHandler.cs" />
     <Compile Include="EmbeddedResourceFileSystem.cs" />
     <Compile Include="PageHandlerMiddleware.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Setting.cs" />
     <Compile Include="Thing.cs" />
     <Compile Include="ThingsContext.cs" />
     <Compile Include="UnitOfWork.cs" />
@@ -191,10 +194,21 @@
     <None Include="Scripts\version.json" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Content\angular-toggle-switch-bootstrap.css" />
+    <EmbeddedResource Include="Content\angular-toggle-switch.css" />
     <Content Include="Content\ng-table.css" />
     <Content Include="Content\ng-table.min.css" />
     <EmbeddedResource Include="partials\add.things.partial.html" />
     <EmbeddedResource Include="favicon.png" />
+    <EmbeddedResource Include="Resources\accepter-icone-3895-32.png" />
+    <EmbeddedResource Include="Resources\erreur-icone-5814-32.png" />
+    <EmbeddedResource Include="partials\settings.partial.html" />
+    <Content Include="Scripts\angular-toggle-switch.js" />
+    <EmbeddedResource Include="Scripts\angular-toggle-switch.min.js" />
+    <Content Include="Scripts\lodash.core.js" />
+    <Content Include="Scripts\lodash.core.min.js" />
+    <Content Include="Scripts\lodash.js" />
+    <EmbeddedResource Include="Scripts\lodash.min.js" />
     <Content Include="Scripts\ng-table.js" />
     <EmbeddedResource Include="Scripts\ng-table.min.js" />
     <EmbeddedResource Include="403.html" />

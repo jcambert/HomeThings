@@ -1,0 +1,31 @@
+﻿<div>
+    <div class="modal-header">
+        <h3 class="modal-title">{{'add-thing-tooltip' | translate}}</h3>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal form-label-left input_mask">
+
+           <div class="form-group">
+                <label class="control-label col-md-3 col-sm-3 col-xs-12">Temps de Rafraichissement</label>
+                <div class="col-md-9 col-sm-9 col-xs-12">
+                    <input type="number" class="form-control" placeholder="Temps de Rafraichissement"  ng-pattern="/^\d+$/" ng-model="settings.automaticRefreshTime">
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label class="control-label col-md-3 col-sm-3 col-xs-12">Raffraichissement Manuel</label>
+                <div class="col-md-9 col-sm-9 col-xs-12">
+                    <toggle-switch ng-model="settings.manualRefreshMode" on-label="{{'yes'|translate}}" off-label="{{'no'|translate}}" ></toggle-switch>
+                </div>
+            </div>
+            <!--<div class="ln_solid"></div>-->
+
+
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" type="button" ng-click="ok()">{{ 'ok' | translate}}</button>
+        <button class="btn btn-warning" type="button" ng-click="cancel()">{{'cancel' | translate}}</button>
+    </div>
+</div>

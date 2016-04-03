@@ -29,6 +29,15 @@ namespace HomeThings.Server
 
             var urlOfThisApp = baseAddress.Replace("*", "127.0.0.1");
 
+            using (var uow=new UnitOfWork())
+            {
+                if (uow.SettingRepository.Count() == 0)
+                {
+                    Setting setting = new Setting() { AutomaticRefreshTime = 5000, ManualRefreshMode = true };
+                    uow.SettingRepository.Insert(setting);
+                    uow.Save();
+                }
+            }
             
             for (;;)
             {

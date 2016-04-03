@@ -8,7 +8,7 @@
                     </w-panel-toolbox-chevron>
                     <w-panel-toolbox-tool>
                         <w-panel-toolbox-tool-item divider>
-                            <a href="#">Settings 1</a>
+                            <a ng-click="modifySettings()">Parametres</a>
                         </w-panel-toolbox-tool-item>
                         <w-panel-toolbox-tool-item>
                             <a href="#">Settings 2</a>
@@ -29,7 +29,11 @@
                 <a class="btn btn-app" uib-tooltip="{{'scenario-tooltip'|translate}}">
                     <i class="fa fa-motorcycle"></i> {{ 'scenario' | translate }}
                 </a>
-                
+                <a class="btn btn-app" uib-tooltip="Manual Refresh" ng-click="update()">
+                    <i class="fa fa-refresh"></i> Refresh
+                </a>
+                <span ng-if="settings.manualRefreshMode==false">Auto Raffraichissement actif</span>
+                <span ng-if="settings.manualRefreshMode"> Raffraichissement Manuel actif</span>
             </w-panel-content>
         </w-panel>
     </div>
@@ -57,9 +61,9 @@
                 <table ng-table="tableParams" class="table table-condensed table-bordered table-striped">
                     <tr ng-repeat="row in $data">
                         <td data-title="'Nom'">{{ row.name }}</td>
-                        <td data-title="'Etat'"><span class="label " ng-class="row.status==1?'label-success':'label-danger'">&nbsp;</span></td>
-                        <td data-title="'Statut'"></td>
-                        <td data-title="'Ip'"></td>
+                        <td data-title="'Etat'"><span class="pin " ng-class="row.state==1?'pin-ok':'pin-danger'" uib-tooltip="{{row.status==1?'online':'offline'}}">&nbsp;</span></td>
+                        <td data-title="'Mode'" ><i class="fa fa-2x" ng-class="row.mode==1?'fa-link':'fa-chain-broken'"></i></td>
+                        <td data-title="'Ip'">{{ row.ip}}:{{row.port>0?row.port:'80'}}</td>
                         <td data-title="'Dernière activité'"></td>
                         <td data-title="'Action'">
                             <a class="btn btn-info btn-sm" ng-click="connect(row.id)" uib-tooltip="{{'connect'|translate}}"><i class="fa fa-link"></i></a>

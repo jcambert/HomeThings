@@ -2,6 +2,7 @@
 using Microsoft.AspNet.SignalR.Hubs;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,7 +10,8 @@ using System.Web.Http;
 
 namespace HomeThings.Server.Controllers
 {
-    public abstract class ApiControllerWithHub<THub> : ApiController
+    public abstract class ApiControllerWithHub<TEntity, THub> : ApiController
+        where TEntity:Entity
         where THub : IHub
     {
        
@@ -25,6 +27,44 @@ namespace HomeThings.Server.Controllers
 
         protected IUnitOfWork UnitOfWork => uow.Value;
 
-       
+        public abstract IRepository<TEntity> Repository { get; }
+
+        protected virtual void AfterInsert(TEntity entity) { }
+
+        protected virtual void AfterDelete(int id) { }
+
+        public virtual IHttpActionResult Post(TEntity entity)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    Repository.Insert(entity);
+                    UnitOfWork.Save();
+                    AfterInsert(entity);
+                }
+                return Ok(entity);
+            }
+            catch (DataException ex)
+            {
+                ModelState.AddModelError("", ex);
+
+            }
+            return this.Conflict();
+        }
+
+        public virtual IHttpActionResult Delete(int id)
+        {
+            Repository.Delete(id);
+            UnitOfWork.Save();
+            AfterDelete(id);
+            return Ok();
+        }
+
+        public IQueryable<Entity> Get()
+        {
+
+            return Repository.Get();
+        }
     }
 }

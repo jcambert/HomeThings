@@ -6416,3 +6416,20 @@ ul.notifications {
   border-left: 6px solid transparent;
 }
 /* /Dropdown animation */
+
+.pin{
+    
+    display: inline-block;
+    height: 32px;
+    width: 32px;
+    zoom: 1;
+    *display:inline;
+}
+
+.pin-ok {
+    background: url('../resources/accepter-icone-3895-32.png')  no-repeat top left;
+}
+
+.pin-danger {
+    background: url('../resources/erreur-icone-5814-32.png')  no-repeat top left;
+}

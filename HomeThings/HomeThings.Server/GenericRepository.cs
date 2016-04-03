@@ -77,6 +77,7 @@ namespace HomeThings.Server
                 dbSet.Attach(entityToDelete);
             }
             dbSet.Remove(entityToDelete);
+            //context.ChangeTracker.Entries().Where(e => e.Entity.Equals(entityToDelete)).First().State == EntityState.Deleted;
         }
 
         public virtual void Update(TEntity entityToUpdate)
