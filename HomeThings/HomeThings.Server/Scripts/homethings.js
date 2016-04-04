@@ -22,8 +22,8 @@
         return {
             BASE_DIR: partial_dir,
             THINGS: partial_dir + 'things',
-            SETTINGS: partial_dir + 'settings'
-    
+            SETTINGS: partial_dir + 'settings',
+            INPUTS: partial_dir + 'inputs'
         }
     })());
 
@@ -35,7 +35,10 @@
             DASHBOARD: partial_dir + 'dashboard'+ext,
             HOME: partial_dir + 'home'+ext,
             ADD_THING: partial_dir + 'add.things'+ext,
-            UPDATE_SETTINGS: partial_dir + 'settings'+ext
+            UPDATE_SETTINGS: partial_dir + 'settings' + ext,
+            THINGS: partial_dir + 'things' + ext,
+            INPUTS: partial_dir + 'inputs' + ext,
+            OUTPUTS : partial_dir + 'outputs' + ext
         }
     })());
 
@@ -52,12 +55,24 @@
         $translateProvider.preferredLanguage('fr_FR');
         $translateProvider.useLocalStorage();
         /* Translation */
-        $urlRouterProvider.otherwise("/home");
-        $stateProvider.state('home', {
-            url:'/home',
-            templateUrl:$partials.HOME
-             
-        })
+        $urlRouterProvider.otherwise("/things");
+        $stateProvider
+            .state('dashboard', {
+                url:'/dashboard',
+                templateUrl:$partials.HOME
+            })
+            .state('things', {
+                url: '/things',
+                templateUrl:$partials.THINGS
+            })
+            .state('inputs', {
+                url: '/inputs',
+                templateUrl: $partials.INPUTS
+            })
+            .state('outputs', {
+                url: '/outputs',
+                templateUrl: $partials.OUTPUTS
+            })
 
         console.info('HommeThings application is configured');
     }]);
@@ -298,11 +313,32 @@
             },
             get: {
                 method: 'GET',
-
             }
         });
     }]);
 
+    app.service('InputApi', ['$resource', 'EndPoints', function ($resource, $end) {
+        return $resource($end.INPUTS+ '/:action/:id/', { id: '@_id' }, {
+            update: {
+                method: 'PUT'
+            },
+
+            delete: {
+                method: 'DELETE'
+            },
+            get: {
+                method: 'GET',
+            }
+        });
+    }]);
+
+    app.directive('dashboard', ['Partials', function ($partials) {
+        return {
+            restrict: 'E',
+            replace: true,
+            templateUrl: $partials.DASHBOARD
+        }
+    }]);
     app.directive('wSidebar', ['$log', '$timeout', function ($log, $timeout) {
         return {
             restrict: 'E',
@@ -771,8 +807,8 @@
                      childs: [
                          {
                              id: 0,
-                             text: 'temp',
-                             state: 'home'
+                             text: 'dashboard',
+                             state: 'dashboard'
                          },
                          {
                              id: 1,
@@ -783,44 +819,31 @@
                  },
                 {
                     icon: 'building-o',
-                    text: 'Articles',
-                    tooltip: 'article-management-tooltip',
+                    text: 'Parametrages',
+                    tooltip: 'settings-tooltip',
                     childs: [
                         {
                             id: 0,
-                            text: 'tous',
-                            state: 'article.list',
+                            text: 'things',
+                            state: 'things',
                             //tooltip:'Tous les articles'
 
                         },
                         {
                             id: 1,
-                            text: 'creer',
-                            link: 'state4'
+                            text: 'inputs',
+                            state: 'inputs'
+                        },
+                        {
+                            id: 2,
+                            text: 'outputs',
+                            state: 'outputs'
                         },
                     ]
                 }
             ]
-        }, {
-            title: 'LIVE ON',
-            menus: [
-                {
-                    icon: 'bug',
-                    text: 'Additional Pages',
-                    childs: [{
-                        text: 'temp',
-                        label: {
-                            variation: 'success',
-                            text: 10
-                        }
-
-                    }, {
-                        text: 'temp'
-                    }
-                    ]
-                }
-            ]
-        }];
+        },
+        ];
 
         $scope.animationsEnabled = true;
 
@@ -900,7 +923,7 @@
                 $log.log('Want add thing with id:' + item.id)
                 $scope.settings.automaticRefreshTime = item.automaticRefreshTime;
                 $scope.settings.manualRefreshMode = item.manualRefreshMode;
-                $settingsapi.save($scope.settings);
+                $settingsapi.update($scope.settings);
             }, function () {
                 $log.info('Modal dismissed at: ' + new Date());
             });
@@ -983,7 +1006,21 @@
        
 
     }]);
+    app.controller('inputsController', ['$scope', '$log', 'NgTableParams', 'InputApi', function ($scope, $log, NgTableParams, $inputapi) {
 
+        $scope.tableParams = new NgTableParams({}, {
+            getData: function (params) {
+                // ajax request to api
+                return $inputapi.query().$promise.then(function (data) {
+                    $log.log(data);
+                    //params.total(data.inlineCount); // recal. page nav controls
+                    return data;//.results;
+                });
+            }
+        });
+    }]);
+
+    /* MODAL CONTROLERS*/
     app.controller('addThingController', ['$scope', '$uibModalInstance', function ($scope, $uibModalInstance) {
         $scope.item = {};
         
@@ -1010,12 +1047,9 @@
         };
     }]);
 
-    app.directive('dashboard',['Partials', function ($partials) {
-        return {
-            restrict: 'E',
-            replace:true,
-            templateUrl:$partials.DASHBOARD
-        }
-    }])
+    /* /MODAL CONTROLERS*/
+    
+
+    
 
 })(window, document,_);

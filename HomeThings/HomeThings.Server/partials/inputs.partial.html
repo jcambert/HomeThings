@@ -1,0 +1,64 @@
+﻿<div class="row">
+
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <w-panel>
+            <w-panel-header title="{{'input-management' |translate}}">
+                <w-panel-toolbox>
+                    <w-panel-toolbox-chevron>
+                    </w-panel-toolbox-chevron>
+                    <w-panel-toolbox-tool>
+                        <w-panel-toolbox-tool-item divider>
+                            <a ng-click="modifySettings()">Parametres</a>
+                        </w-panel-toolbox-tool-item>
+                        <w-panel-toolbox-tool-item>
+                            <a href="#">Settings 2</a>
+                        </w-panel-toolbox-tool-item>
+                    </w-panel-toolbox-tool>
+                    <w-panel-toolbox-close>
+                    </w-panel-toolbox-close>
+
+                </w-panel-toolbox>
+            </w-panel-header>
+            <w-panel-content>
+                <a class="btn btn-app" uib-tooltip="{{'add-input-tooltip'|translate}}" ng-click="wantAddInput()">
+                    <i class="fa fa-plus"></i> {{ 'add' | translate }}
+                </a>
+                
+            </w-panel-content>
+        </w-panel>
+    </div>
+
+    <div class="col-md-12 col-sm-12 col-xs-12" ng-controller="inputsController ">
+        <w-panel>
+            <w-panel-header title="{{'input-list' |translate}}">
+                <w-panel-toolbox>
+                    <w-panel-toolbox-chevron>
+                    </w-panel-toolbox-chevron>
+                    <w-panel-toolbox-tool>
+                        <w-panel-toolbox-tool-item divider>
+                            <a href="#">Settings 1</a>
+                        </w-panel-toolbox-tool-item>
+                        <w-panel-toolbox-tool-item>
+                            <a href="#">Settings 2</a>
+                        </w-panel-toolbox-tool-item>
+                    </w-panel-toolbox-tool>
+                    <w-panel-toolbox-close>
+                    </w-panel-toolbox-close>
+
+                </w-panel-toolbox>
+            </w-panel-header>
+            <w-panel-content>
+                <table ng-table="tableParams" class="table table-condensed table-bordered table-striped">
+                    <tr ng-repeat="row in $data">
+                        <td data-title="'Nom'">{{ row.name }}</td>
+                        <td data-title="'Description'"><span class="pin ">{{row.description}}</span></td>
+                        <td data-title="'Action'">
+                            <a class="btn btn-info btn-sm" ng-click="delete(row.id)" uib-tooltip="{{'delete'|translate}}"><i class="fa fa-trash"></i></a>
+                        </td>
+                    </tr>
+                </table>
+
+            </w-panel-content>
+        </w-panel>
+    </div>
+</div>

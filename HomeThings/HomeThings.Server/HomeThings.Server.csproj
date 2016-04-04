@@ -141,11 +141,13 @@
   <ItemGroup>
     <Compile Include="ContentTypeProvider.cs" />
     <Compile Include="Controllers\ApiControllerWithHub.cs" />
+    <Compile Include="Controllers\InputsController.cs" />
     <Compile Include="Controllers\SettingsController.cs" />
     <Compile Include="Controllers\ThingsController.cs" />
     <Compile Include="Entity.cs" />
     <Compile Include="GenericRepository.cs" />
     <Compile Include="HomeThingsHub.cs" />
+    <Compile Include="Input.cs" />
     <Compile Include="InterceptResponseMiddleware.cs" />
     <Compile Include="IpAddressAttribute.cs" />
     <Compile Include="IRepository.cs" />
@@ -203,6 +205,9 @@
     <EmbeddedResource Include="Resources\accepter-icone-3895-32.png" />
     <EmbeddedResource Include="Resources\erreur-icone-5814-32.png" />
     <EmbeddedResource Include="partials\settings.partial.html" />
+    <EmbeddedResource Include="partials\home.partial.html" />
+    <EmbeddedResource Include="partials\inputs.partial.html" />
+    <EmbeddedResource Include="partials\outputs.partial.html" />
     <Content Include="Scripts\angular-toggle-switch.js" />
     <EmbeddedResource Include="Scripts\angular-toggle-switch.min.js" />
     <Content Include="Scripts\lodash.core.js" />
@@ -226,7 +231,7 @@
     <EmbeddedResource Include="fonts\glyphicons-halflings-regular.svg" />
     <EmbeddedResource Include="partials\dashboard.partial.html" />
     <EmbeddedResource Include="Resources\photo.jpg" />
-    <EmbeddedResource Include="partials\home.partial.html" />
+    <EmbeddedResource Include="partials\things.partial.html" />
     <EmbeddedResource Include="partials\angular-advanced-searchbox.html" />
     <EmbeddedResource Include="partials\wNavigationBar.html" />
     <Content Include="Scripts\angular-animate.js" />

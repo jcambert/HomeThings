@@ -19,6 +19,8 @@ namespace HomeThings.Server
 
         public DbSet<Setting> Settings{get;set;}
 
+        public DbSet<Input> Inputs { get; set; }
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             // Database does not pluralize table names

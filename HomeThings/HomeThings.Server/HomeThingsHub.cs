@@ -19,8 +19,16 @@ namespace HomeThings.Server
             public int Id { get; set; }
             public State State { get; set; }
             public Mode Mode { get; set; }
+            public List<OutputState> Outputs{get;set;}
 
         }
+
+        class OutputState
+        {
+            public int Id { get; set; }
+            public string Value { get; set; }
+        }
+
         Lazy<IUnitOfWork> uow = new Lazy<IUnitOfWork>(
             () => new UnitOfWork()
         );

@@ -12,7 +12,7 @@ namespace HomeThings.Server
         private ThingsContext context = new ThingsContext();
         private IRepository<Thing> thingRepository;
         private IRepository<Setting> settingRepository;
-
+        private IRepository<Input> intputRepository;
         public IRepository<Thing> ThingRepository
         {
             get
@@ -36,6 +36,19 @@ namespace HomeThings.Server
                     this.settingRepository = new GenericRepository<Setting>(context);
                 }
                 return settingRepository;
+            }
+        }
+
+        public IRepository<Input> InputRepository
+        {
+            get
+            {
+
+                if (this.intputRepository == null)
+                {
+                    this.intputRepository = new GenericRepository<Input>(context);
+                }
+                return intputRepository;
             }
         }
 
@@ -74,5 +87,6 @@ namespace HomeThings.Server
         void Save();
         IRepository<Thing> ThingRepository { get; }
         IRepository<Setting> SettingRepository { get; }
+        IRepository<Input> InputRepository { get;  }
     }
 }

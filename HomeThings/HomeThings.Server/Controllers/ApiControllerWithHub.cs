@@ -53,6 +53,19 @@ namespace HomeThings.Server.Controllers
             return this.Conflict();
         }
 
+        public virtual IHttpActionResult Put(int id,TEntity entity)
+        {
+            var existingProduct = Repository.GetByID(id);
+
+            if (existingProduct == null)
+                return this.NotFound();
+
+            Repository.Update(entity);
+            UnitOfWork.Save();
+            return Ok(entity);
+
+        }
+
         public virtual IHttpActionResult Delete(int id)
         {
             Repository.Delete(id);
@@ -66,5 +79,16 @@ namespace HomeThings.Server.Controllers
 
             return Repository.Get();
         }
+
+        public IHttpActionResult Get(int id)
+        {
+            var entity = Repository.GetByID(id);
+
+            if (entity == null)
+                this.NotFound();
+
+            return Ok(entity);
+        }
+
     }
 }

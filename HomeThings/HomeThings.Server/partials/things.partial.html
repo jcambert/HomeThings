@@ -1,0 +1,79 @@
+﻿<div class="row">
+
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <w-panel>
+            <w-panel-header title="{{'thing-management' |translate}}">
+                <w-panel-toolbox>
+                    <w-panel-toolbox-chevron>
+                    </w-panel-toolbox-chevron>
+                    <w-panel-toolbox-tool>
+                        <w-panel-toolbox-tool-item divider>
+                            <a ng-click="modifySettings()">Parametres</a>
+                        </w-panel-toolbox-tool-item>
+                        <w-panel-toolbox-tool-item>
+                            <a href="#">Settings 2</a>
+                        </w-panel-toolbox-tool-item>
+                    </w-panel-toolbox-tool>
+                    <w-panel-toolbox-close>
+                    </w-panel-toolbox-close>
+
+                </w-panel-toolbox>
+            </w-panel-header>
+            <w-panel-content>
+                <a class="btn btn-app" uib-tooltip="{{'add-thing-tooltip'|translate}}" ng-click="wantAddThing()">
+                    <i class="fa fa-plus"></i> {{ 'add' | translate }}
+                </a>
+                <a class="btn btn-app" uib-tooltip="{{'detect-thing-tooltip'|translate}}">
+                    <i class="fa fa-search"></i> {{ 'detect' | translate }}
+                </a>
+                <a class="btn btn-app" uib-tooltip="{{'scenario-tooltip'|translate}}">
+                    <i class="fa fa-motorcycle"></i> {{ 'scenario' | translate }}
+                </a>
+                <a class="btn btn-app" uib-tooltip="Manual Refresh" ng-click="update()">
+                    <i class="fa fa-refresh"></i> Refresh
+                </a>
+                <span ng-if="settings.manualRefreshMode==false">Auto Raffraichissement actif</span>
+                <span ng-if="settings.manualRefreshMode"> Raffraichissement Manuel actif</span>
+            </w-panel-content>
+        </w-panel>
+    </div>
+
+    <div class="col-md-12 col-sm-12 col-xs-12" ng-controller="thingsController ">
+        <w-panel>
+            <w-panel-header title="{{'thing-list' |translate}}">
+                <w-panel-toolbox>
+                    <w-panel-toolbox-chevron>
+                    </w-panel-toolbox-chevron>
+                    <w-panel-toolbox-tool>
+                        <w-panel-toolbox-tool-item divider>
+                            <a href="#">Settings 1</a>
+                        </w-panel-toolbox-tool-item>
+                        <w-panel-toolbox-tool-item>
+                            <a href="#">Settings 2</a>
+                        </w-panel-toolbox-tool-item>
+                    </w-panel-toolbox-tool>
+                    <w-panel-toolbox-close>
+                    </w-panel-toolbox-close>
+
+                </w-panel-toolbox>
+            </w-panel-header>
+            <w-panel-content>
+                <table ng-table="tableParams" class="table table-condensed table-bordered table-striped">
+                    <tr ng-repeat="row in $data">
+                        <td data-title="'Nom'">{{ row.name }}</td>
+                        <td data-title="'Etat'"><span class="pin " ng-class="row.state==1?'pin-ok':'pin-danger'" uib-tooltip="{{row.status==1?'online':'offline'}}">&nbsp;</span></td>
+                        <td data-title="'Mode'" ><i class="fa fa-2x" ng-class="row.mode==1?'fa-link':'fa-chain-broken'"></i></td>
+                        <td data-title="'Ip'">{{ row.ip}}:{{row.port>0?row.port:'80'}}</td>
+                        <td data-title="'Dernière activité'"></td>
+                        <td data-title="'Action'">
+                            <a class="btn btn-info btn-sm" ng-click="connect(row.id)" uib-tooltip="{{'connect'|translate}}"><i class="fa fa-link"></i></a>
+                            <a  class="btn btn-info btn-sm" ng-click="disconnect(row.id)" uib-tooltip="{{'disconnect'|translate}}"><i class="fa fa-chain-broken"></i></a>
+                            <a class="btn btn-info btn-sm" ng-click="delete(row.id)" uib-tooltip="{{'delete'|translate}}"><i class="fa fa-trash"></i></a>
+                        </td>
+                    </tr>
+                </table>
+
+            </w-panel-content>
+        </w-panel>
+    </div>
+</div>
