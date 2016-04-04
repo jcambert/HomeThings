@@ -40,13 +40,29 @@
       };
   }]);
   
-  diagram.directive('drawingZone',[function(){
+  diagram.directive('drawingZone',['$log','$',function($log,$){
       return{
           restrict:'E',
           replace:true,
           transclude:true,
           template:'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="v-2" width="1000" height="1000" ><g id="viewport" class="viewport" ng-transclude></g></svg>',
-          controller:['$scope',function($scope){}]
+          controller:['$scope',function($scope){}],
+          link:function(scope,element,attrs){
+              $log.log();
+              $(element).children('#viewport').children(  ).each(function(idx){
+                  $log.log(this)
+                 $(this).draggable() .bind('mousedown', function(event, ui){
+                        // bring target to front
+                        $(event.target.parentElement).append( event.target );
+                    })
+                    .bind('drag', function(event, ui){
+                        // update coordinates manually, since top/left style props don't work on SVG
+                        this.setAttribute('x', ui.position.left);
+                        this.setAttribute('y', ui.position.top);
+                    });
+                   
+              });
+          }
           
       };
   }]);
@@ -56,7 +72,11 @@
           restrict:'E',
           replace:true,
           //require:'^drawingZone',
+          templateNamespace:'svg',
           templateUrl: 'app/diagram/simpleshape.html',
+          link:function(scope,element,attrs){
+              var el = (attrs.targetId != null) ? angular.element(document.getElementById(attrs.targetId)) : element;
+          }
       };
   });
   
