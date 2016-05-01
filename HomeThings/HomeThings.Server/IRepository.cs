@@ -22,6 +22,8 @@ namespace HomeThings.Server
 
         void Delete(TEntity entityToDelete);
 
+        void DeleteAll();
+
         void Update(TEntity entityToUpdate);
 
         int Count(Expression<Func<TEntity, bool>> predicate = null);

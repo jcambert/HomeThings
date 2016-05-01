@@ -80,6 +80,11 @@ namespace HomeThings.Server
             //context.ChangeTracker.Entries().Where(e => e.Entity.Equals(entityToDelete)).First().State == EntityState.Deleted;
         }
 
+        public virtual void DeleteAll()
+        {
+            dbSet.RemoveRange(Get());
+        }
+
         public virtual void Update(TEntity entityToUpdate)
         {
             dbSet.Attach(entityToUpdate);

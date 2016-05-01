@@ -47,6 +47,7 @@
   "dashboard": "Tableau de bord",
   "things": "Objects connectes",
   "inputs": "Entrees",
-  "outputs":  "Sorties",
+  "outputs": "Sorties",
+  "blockly": "Blocks",
   "x": "x"
 }

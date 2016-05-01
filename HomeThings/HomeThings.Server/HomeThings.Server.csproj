@@ -16,7 +16,7 @@
     </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -96,6 +96,14 @@
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="ReactiveUI, Version=6.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\reactiveui-core.6.5.0\lib\Net45\ReactiveUI.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Splat, Version=1.6.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Splat.1.6.2\lib\Net45\Splat.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="SQLite.CodeFirst, Version=1.1.11.0, Culture=neutral, PublicKeyToken=eb96ba0a78d831a7, processorArchitecture=MSIL">
       <HintPath>..\packages\SQLite.CodeFirst.1.1.11.0\lib\net45\SQLite.CodeFirst.dll</HintPath>
       <Private>True</Private>
@@ -119,6 +127,26 @@
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Reactive.Core, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rx-Core.2.2.5\lib\net45\System.Reactive.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rx-Interfaces.2.2.5\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Reactive.Linq, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rx-Linq.2.2.5\lib\net45\System.Reactive.Linq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Reactive.PlatformServices, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rx-PlatformServices.2.2.5\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Reactive.Windows.Threading, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rx-XAML.2.2.5\lib\net45\System.Reactive.Windows.Threading.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Web.Cors, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.Cors.5.0.0\lib\net45\System.Web.Cors.dll</HintPath>
       <Private>True</Private>
@@ -137,10 +165,18 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BlocklyToolbox.cs" />
+    <Compile Include="Commands\Command.cs" />
+    <Compile Include="Commands\Extensions.cs" />
+    <Compile Include="Commands\InternalCommand.cs" />
     <Compile Include="ContentTypeProvider.cs" />
     <Compile Include="Controllers\ApiControllerWithHub.cs" />
+    <Compile Include="Controllers\BlocklyToolboxController.cs" />
+    <Compile Include="BlocklyHub.cs" />
+    <Compile Include="Controllers\CommandsController.cs" />
     <Compile Include="Controllers\InputsController.cs" />
     <Compile Include="Controllers\SettingsController.cs" />
     <Compile Include="Controllers\ThingsController.cs" />
@@ -163,6 +199,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <EmbeddedResource Include="blockly\media\click.ogg" />
+    <EmbeddedResource Include="blockly\media\delete.ogg" />
+    <EmbeddedResource Include="blockly\media\disconnect.ogg" />
     <None Include="Content\bootstrap-theme.css.map" />
     <EmbeddedResource Include="Content\bootstrap-theme.min.css.map" />
     <None Include="Content\bootstrap.css.map" />
@@ -196,8 +235,170 @@
     <None Include="Scripts\version.json" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Scripts\xml2json.js" />
     <EmbeddedResource Include="Content\angular-toggle-switch-bootstrap.css" />
     <EmbeddedResource Include="Content\angular-toggle-switch.css" />
+    <EmbeddedResource Include="blockly\media\1x1.gif" />
+    <EmbeddedResource Include="blockly\media\click.mp3" />
+    <EmbeddedResource Include="blockly\media\click.wav" />
+    <EmbeddedResource Include="blockly\media\delete.mp3" />
+    <EmbeddedResource Include="blockly\media\delete.wav" />
+    <EmbeddedResource Include="blockly\media\disconnect.mp3" />
+    <EmbeddedResource Include="blockly\media\disconnect.wav" />
+    <EmbeddedResource Include="blockly\media\handclosed.cur" />
+    <EmbeddedResource Include="blockly\media\handdelete.cur" />
+    <EmbeddedResource Include="blockly\media\handopen.cur" />
+    <EmbeddedResource Include="blockly\media\quote0.png" />
+    <EmbeddedResource Include="blockly\media\quote1.png" />
+    <EmbeddedResource Include="blockly\media\sprites.png" />
+    <EmbeddedResource Include="blockly\media\sprites.svg" />
+    <EmbeddedResource Include="blockly\blocks\blockly\array.js" />
+    <EmbeddedResource Include="blockly\blocks\blockly\colour.js" />
+    <EmbeddedResource Include="blockly\blocks\blockly\lists.js" />
+    <EmbeddedResource Include="blockly\blocks\blockly\logic.js" />
+    <EmbeddedResource Include="blockly\blocks\blockly\loops.js" />
+    <EmbeddedResource Include="blockly\blocks\blockly\math.js" />
+    <EmbeddedResource Include="blockly\blocks\blockly\old_lists.js" />
+    <EmbeddedResource Include="blockly\blocks\blockly\procedures.js" />
+    <EmbeddedResource Include="blockly\blocks\blockly\text.js" />
+    <EmbeddedResource Include="blockly\blocks\blockly\variables.js" />
+    <EmbeddedResource Include="blockly\blocks\blockly\variables_type.js" />
+    <EmbeddedResource Include="blockly\blocks\base\arduino_base.js" />
+    <EmbeddedResource Include="blockly\blocks\base\arduino_conversion.js" />
+    <EmbeddedResource Include="blockly\blocks\base\arduino_io.js" />
+    <EmbeddedResource Include="blockly\blocks\base\arduino_variables.js" />
+    <EmbeddedResource Include="blockly\blocks\base\variables_type.js" />
+    <EmbeddedResource Include="blockly\blocks\adafruit_motorshield\adafruit_motorshield.js" />
+    <EmbeddedResource Include="blockly\blocks\bitbloq\bitbloq.js" />
+    <EmbeddedResource Include="blockly\blocks\dfplayer-mini-mp3-dfrobot\dfplayer-mini-mp3-dfrobot.js" />
+    <EmbeddedResource Include="blockly\blocks\display-oled-128x64-i2c\display-oled-128x64-i2c.js" />
+    <EmbeddedResource Include="blockly\blocks\fischertechnik\fischertechnik.js" />
+    <EmbeddedResource Include="blockly\blocks\grove\grove.js" />
+    <EmbeddedResource Include="blockly\blocks\arduino_shield\arduino_shield.js" />
+    <EmbeddedResource Include="blockly\blocks\jeulin_maquette_feux\jeulin_maquette_feux.js" />
+    <EmbeddedResource Include="blockly\blocks\kit_velo\kit_velo_niv1.js" />
+    <EmbeddedResource Include="blockly\blocks\kit_velo\kit_velo_niv2.js" />
+    <EmbeddedResource Include="blockly\blocks\led-rgb-ws2812b\led-rgb-ws2812b.js" />
+    <EmbeddedResource Include="blockly\blocks\mbot\mbot_1.js" />
+    <EmbeddedResource Include="blockly\blocks\mbot\mbot_2.js" />
+    <EmbeddedResource Include="blockly\blocks\mbot\mbot_3.js" />
+    <EmbeddedResource Include="blockly\blocks\multi-function\multi-function.js" />
+    <EmbeddedResource Include="blockly\blocks\robuno\robuno.js" />
+    <EmbeddedResource Include="blockly\blocks\serial\serial.js" />
+    <EmbeddedResource Include="blockly\blocks\serial\softserial.js" />
+    <EmbeddedResource Include="blockly\blocks\technozone51\technozone51.js" />
+    <EmbeddedResource Include="blockly\blocks\zumobot\zumo_motors.js" />
+    <EmbeddedResource Include="blockly\blocks\zumobot\zumo_sensors.js" />
+    <EmbeddedResource Include="blockly\blocks\robots\robot_misc.js" />
+    <EmbeddedResource Include="blockly\blocks\robots\robot_motors.js" />
+    <EmbeddedResource Include="blockly\blocks\servo\servo.js" />
+    <EmbeddedResource Include="blockly\generators\blockly\array.js" />
+    <EmbeddedResource Include="blockly\generators\blockly\control.js" />
+    <EmbeddedResource Include="blockly\generators\blockly\lists.js" />
+    <EmbeddedResource Include="blockly\generators\blockly\logic.js" />
+    <EmbeddedResource Include="blockly\generators\blockly\math.js" />
+    <EmbeddedResource Include="blockly\generators\blockly\procedures.js" />
+    <EmbeddedResource Include="blockly\generators\blockly\text.js" />
+    <EmbeddedResource Include="blockly\generators\blockly\variables.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\adafruit_motorshield.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\arduino_base.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\arduino_conversion.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\arduino_io.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\arduino_shield.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\arduino_variables.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\bitbloq.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\dfplayer-mini-mp3-dfrobot.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\display-oled-128x64-i2c.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\fischertechnik.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\grove.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\jeulin_maquette_feux.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\kit_velo_niv1.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\kit_velo_niv2.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\led-rgb-ws2812b.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\mbot.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\multi-function.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\robot_misc.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\robot_motors.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\robuno.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\serial.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\servo.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\softserial.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\technozone51.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\technozone51_barbot.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\variables_type.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\zumo_motors.js" />
+    <EmbeddedResource Include="blockly\generators\arduino\zumo_sensors.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\ar.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\az.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\bcc.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\be-tarask.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\bg.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\bn.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\br.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\ca.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\cs.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\da.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\de.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\el.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\en.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\es.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\fa.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\fi.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\fr.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\he.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\hi.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\hrx.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\hu.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\ia.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\id.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\is.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\it.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\ja.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\ko.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\lb.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\lrc.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\lt.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\mk.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\ms.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\nb.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\nl.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\oc.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\pl.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\pms.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\pt-br.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\pt.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\ro.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\ru.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\sc.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\shn.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\sk.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\sq.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\sr.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\sv.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\ta.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\tcy.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\th.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\tl.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\tlh.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\tr.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\uk.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\vi.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\zh-hans.js" />
+    <EmbeddedResource Include="blockly\lang\blocks\zh-hant.js" />
+    <EmbeddedResource Include="blockly\utils\static_typing.js" />
+    <EmbeddedResource Include="blockly\utils\type.js" />
+    <EmbeddedResource Include="blockly\utils\types.js" />
+    <EmbeddedResource Include="blockly\blocks\robuno\Buzzer.jpg" />
+    <EmbeddedResource Include="blockly\blocks\robuno\Capteur_Collision_Droite.jpg" />
+    <EmbeddedResource Include="blockly\blocks\robuno\Capteur_Collision_Gauche.jpg" />
+    <EmbeddedResource Include="blockly\blocks\robuno\LDR_Droite.jpg" />
+    <EmbeddedResource Include="blockly\blocks\robuno\LDR_Gauche.jpg" />
+    <EmbeddedResource Include="blockly\blocks\robuno\LED_Blanche.jpg" />
+    <EmbeddedResource Include="blockly\blocks\robuno\LED_Rouge.jpg" />
+    <EmbeddedResource Include="blockly\blocks\robuno\Servomoteur_Droite.jpg" />
+    <EmbeddedResource Include="blockly\blocks\robuno\Servomoteur_Gauche.jpg" />
+    <EmbeddedResource Include="blockly\blocks\robuno\Shield_moteurs_CC.jpg" />
+    <Content Include="blockly_uncompressed.js" />
     <Content Include="Content\ng-table.css" />
     <Content Include="Content\ng-table.min.css" />
     <EmbeddedResource Include="partials\add.things.partial.html" />
@@ -208,8 +409,80 @@
     <EmbeddedResource Include="partials\home.partial.html" />
     <EmbeddedResource Include="partials\inputs.partial.html" />
     <EmbeddedResource Include="partials\outputs.partial.html" />
+    <EmbeddedResource Include="partials\blockly.partial.html" />
+    <EmbeddedResource Include="Scripts\blockly\angular-blockly.js" />
+    <EmbeddedResource Include="Resources\toolbox_1.xml" />
+    <EmbeddedResource Include="Resources\toolbox_2.xml" />
+    <EmbeddedResource Include="Resources\toolbox_all.xml" />
+    <EmbeddedResource Include="partials\blockly.directive.html" />
     <Content Include="Scripts\angular-toggle-switch.js" />
     <EmbeddedResource Include="Scripts\angular-toggle-switch.min.js" />
+    <EmbeddedResource Include="Scripts\blockly\blockly_compressed.js" />
+    <EmbeddedResource Include="Scripts\blockly\blocks_compressed.js" />
+    <EmbeddedResource Include="Scripts\homeThings-utils.js" />
+    <None Include="Scripts\blockly\blockly_uncompressed.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\ar.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\az.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\ba.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\bcc.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\be-tarask.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\bg.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\bn.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\br.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\ca.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\cs.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\da.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\de.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\el.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\en.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\es.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\fa.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\fi.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\fr.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\he.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\hi.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\hrx.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\hu.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\ia.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\id.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\is.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\it.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\ja.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\ko.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\lb.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\lki.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\lrc.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\lt.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\mk.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\ms.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\nb.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\nl.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\oc.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\pl.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\pms.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\pt-br.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\pt.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\ro.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\ru.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\sc.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\sd.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\shn.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\sk.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\sl.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\sq.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\sr.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\sv.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\ta.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\tcy.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\th.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\tl.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\tlh.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\tr.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\uk.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\vi.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\zh-hans.js" />
+    <EmbeddedResource Include="Scripts\blockly\i18n\zh-hant.js" />
+    <EmbeddedResource Include="Scripts\angular-xml.js" />
     <Content Include="Scripts\lodash.core.js" />
     <Content Include="Scripts\lodash.core.min.js" />
     <Content Include="Scripts\lodash.js" />
@@ -1025,6 +1298,12 @@
     <EmbeddedResource Include="Scripts\jquery-2.2.2.min.js" />
     <Content Include="Scripts\jquery.signalR-2.2.0.js" />
     <EmbeddedResource Include="Scripts\jquery.signalR-2.2.0.min.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Visual Studio 2015\Projects\Webcorp.Jarvis\Webcorp.Jarvis.Core\Webcorp.Domotic.Core.csproj">
+      <Project>{27446404-f224-4a19-861b-5a06da8fa2d7}</Project>
+      <Name>Webcorp.Domotic.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

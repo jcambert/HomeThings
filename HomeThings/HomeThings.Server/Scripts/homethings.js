@@ -1,11 +1,14 @@
-﻿(function (window, document, _) {
+﻿(function (window, _) {
     'use strict';
+    if (window.angular == undefined) throw "angular must be declared before homethings";
+    if (window.$ == undefined) throw "jquery must be declared before homethings";
+
     var angular = window.angular;
-    var app = window.app = angular.module('homeThingsApplication', ['ngAnimate', 'ngCookies', 'ngTable', 'ngResource', 'ui.bootstrap', 'ui.router', 'pascalprecht.translate', 'toggle-switch']);
+    var app = window.app = angular.module('homeThingsApplication', ['homethingsUtil','ngAnimate', 'ngCookies', 'ngTable', 'ngResource', 'ui.bootstrap', 'ui.router', 'pascalprecht.translate', 'toggle-switch','ngBlockly']);
     
-   
-    app.constant('$', window.jQuery);
+    app.constant('$', window.$);
     app.constant('_', _);
+ 
     app.constant('HubName', 'HomeThings');
 
     app.constant('LOCALES', {
@@ -17,7 +20,7 @@
     });
 
     app.constant('EndPoints', (function () {
-        var partial_dir = 'http://localhost:8081/api/';
+        var partial_dir = 'http://192.168.0.11:8888/api/';// 'http://192.168.0.11:8081/api/';
 
         return {
             BASE_DIR: partial_dir,
@@ -38,11 +41,12 @@
             UPDATE_SETTINGS: partial_dir + 'settings' + ext,
             THINGS: partial_dir + 'things' + ext,
             INPUTS: partial_dir + 'inputs' + ext,
-            OUTPUTS : partial_dir + 'outputs' + ext
+            OUTPUTS: partial_dir + 'outputs' + ext,
+            BLOCKLY: partial_dir + 'blockly'+ext
         }
     })());
 
-    app.config(['$stateProvider', '$urlRouterProvider', '$logProvider', '$translateProvider','Partials', function ($stateProvider, $urlRouterProvider, $log, $translateProvider,$partials) {
+    app.config(['$stateProvider', '$urlRouterProvider', '$logProvider', '$translateProvider','Partials','blocklyProvider','EndPoints', function ($stateProvider, $urlRouterProvider, $log, $translateProvider,$partials,$blockly,$endPoints) {
         $log.debugEnabled(true);
 
         /* Translation*/
@@ -54,16 +58,18 @@
         });
         $translateProvider.preferredLanguage('fr_FR');
         $translateProvider.useLocalStorage();
-        /* Translation */
+        /* End Translation */
+
+        /* Route */
         $urlRouterProvider.otherwise("/things");
         $stateProvider
             .state('dashboard', {
-                url:'/dashboard',
-                templateUrl:$partials.HOME
+                url: '/dashboard',
+                templateUrl: $partials.HOME
             })
             .state('things', {
                 url: '/things',
-                templateUrl:$partials.THINGS
+                templateUrl: $partials.THINGS
             })
             .state('inputs', {
                 url: '/inputs',
@@ -73,7 +79,37 @@
                 url: '/outputs',
                 templateUrl: $partials.OUTPUTS
             })
+            .state('blockly', {
+                url: '/blockly',
+                templateUrl: $partials.BLOCKLY
+            })
+        ;
+        /* End Reoute */
 
+        /* Blockly */
+        $blockly.setOptions({
+            path: "../blockly/",
+            trashcan: true,
+            //toolbox:  document.getElementById('blocklyToolbox'),
+            grid:
+             {
+                 spacing: 20,
+                 length: 3,
+                 colour: '#ccc',
+                 snap: true
+             },
+            zoom:
+             {
+                 controls: true,
+                 wheel: true,
+                 startScale: 1.0,
+                 maxScale: 3,
+                 minScale: 0.3,
+                 scaleSpeed: 1.2
+             },
+        });
+        $blockly.setEndPoint($endPoints.BASE_DIR);
+        /* End Blockly */
         console.info('HommeThings application is configured');
     }]);
 
@@ -83,100 +119,7 @@
     }]);
 
 
-    app.service('Hub', ['$','$rootScope', '$log', function ($,$rootScope, $log) {
-        //This will allow same connection to be used for all Hubs
-        //It also keeps connection as singleton.
-        var globalConnections = [];
-
-        function initNewConnection(options) {
-            var connection = null;
-            if (options && options.rootPath) {
-                connection = $.hubConnection(options.rootPath, { useDefaultPath: false });
-            } else {
-                connection = $.hubConnection();
-            }
-
-            connection.logging = (options && options.logging ? true : false);
-            return connection;
-        }
-
-        function getConnection(options) {
-            var useSharedConnection = !(options && options.useSharedConnection === false);
-            if (useSharedConnection) {
-                return typeof globalConnections[options.rootPath] === 'undefined' ?
-                globalConnections[options.rootPath] = initNewConnection(options) :
-                globalConnections[options.rootPath];
-            }
-            else {
-                return initNewConnection(options);
-            }
-        }
-
-        return function (hubName, options) {
-            var Hub = this;
-            Hub.connected = false;
-            Hub.connection = getConnection(options);
-            Hub.proxy = Hub.connection.createHubProxy(hubName);
-            
-            Hub.on = function (event, fn) {
-                Hub.proxy.on(event, fn);
-            };
-
-            Hub.on('', function () { console.log('ADDTHING'); });
-            Hub.invoke = function (method, args) {
-                //if(Hub.connected)
-                    return Hub.proxy.invoke.apply(Hub.proxy, arguments)
-            };
-            Hub.disconnect = function () {
-                Hub.connection.stop();
-            };
-            Hub.connect = function () {
-                var startOptions = {};
-                if (options.transport) startOptions.transport = options.transport;
-                if (options.jsonp) startOptions.jsonp = options.jsonp;
-                if (angular.isDefined(options.withCredentials)) startOptions.withCredentials = options.withCredentials;
-                return Hub.connection.start(startOptions);
-            };
-
-            if (options && options.listeners) {
-                Object.getOwnPropertyNames(options.listeners)
-                .filter(function (propName) {
-                    return typeof options.listeners[propName] === 'function';
-                })
-                    .forEach(function (propName) {
-                        Hub.on(propName, options.listeners[propName]);
-                    });
-            }
-            if (options && options.methods) {
-                angular.forEach(options.methods, function (method) {
-                    Hub[method] = function () {
-                        var args = $.makeArray(arguments);
-                        args.unshift(method);
-                        return Hub.invoke.apply(Hub, args);
-                    };
-                });
-            }
-            if (options && options.queryParams) {
-                Hub.connection.qs = options.queryParams;
-            }
-            if (options && options.errorHandler) {
-                Hub.connection.error(options.errorHandler);
-            }
-            if (options && options.stateChanged) {
-                Hub.connection.stateChanged(options.stateChanged);
-            }
-
-            //Adding additional property of promise allows to access it in rest of the application.
-            if (options.autoConnect === undefined || options.autoConnect) {
-                Hub.promise = Hub.connect();
-            }
-            $log.log(Hub);
-            return Hub;
-        };
-
-
-    }]);
-
+  
     app.service('Things', ['$rootScope', 'Hub','HubName', '$timeout', '$log', function ($rootScope, Hub,HubName, $timeout, $log) {
         //declaring the hub connection
         var hub = new Hub(HubName, {
@@ -839,6 +782,11 @@
                             text: 'outputs',
                             state: 'outputs'
                         },
+                         {
+                             id: 3,
+                             text: 'blockly',
+                             state: 'blockly'
+                         },
                     ]
                 }
             ]
@@ -1052,4 +1000,4 @@
 
     
 
-})(window, document,_);
+})(window, _);

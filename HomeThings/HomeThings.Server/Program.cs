@@ -1,4 +1,5 @@
-﻿using Microsoft.Owin.Cors;
+﻿using HomeThings.Server.Commands;
+using Microsoft.Owin.Cors;
 using Microsoft.Owin.Hosting;
 using Microsoft.Owin.StaticFiles;
 using Microsoft.Owin.StaticFiles.ContentTypes;
@@ -13,6 +14,7 @@ using System.Net.Http.Formatting;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
+using Webcorp.Domotic.Core;
 
 namespace HomeThings.Server
 {
@@ -20,16 +22,17 @@ namespace HomeThings.Server
     {
         private static bool Halt { get; set; }
 
+
         static void Main(string[] args)
         {
             var baseAddress = "http://*:80/";
             var isWin = Environment.OSVersion.Platform == PlatformID.Win32NT;
-            if (isWin) baseAddress = "http://localhost:8081/";
+            if (isWin) baseAddress = "http://192.168.0.11:8888/";
             var httpHost = WebApp.Start<Startup>(url: baseAddress);
 
             var urlOfThisApp = baseAddress.Replace("*", "127.0.0.1");
 
-            using (var uow=new UnitOfWork())
+            using (var uow = new UnitOfWork())
             {
                 if (uow.SettingRepository.Count() == 0)
                 {
@@ -37,8 +40,27 @@ namespace HomeThings.Server
                     uow.SettingRepository.Insert(setting);
                     uow.Save();
                 }
+                uow.CommandRepository.DeleteAll();
+                uow.Save();
+                if (uow.CommandRepository.Count() == 0)
+                {
+                    Command cde0 = new Command() { Name = "Command 1", Description = "Allumer la led Temoins", Action = "allumer", Pin = 13, DigitalValue = true, Destination = "COM6", PortOrRate = 9600, Measurement = Measurement.Digital, Method = Method.Serial, Way = Way.Output };
+                    Command cde1 = new Command() { Name = "Command 2", Description = "Eteindre la led Temoins", Action = "eteindre", Pin = 13, DigitalValue = false, Destination = "COM6", PortOrRate = 9600, Measurement = Measurement.Digital, Method = Method.Serial, Way = Way.Output };
+                    Command cde2 = new Command() { Name = "Command 3", Description = "Fermer port com", Action = "fermer port com", Method = Method.Internal };
+                    Command cde3 = new Command() { Name = "Command 4", Description = "Ouvrir port com", Action = "ouvrir port com", Method = Method.Internal };
+                    Command cde4 = new Command() { Name = "Command 4", Description = "Ouvrir Application", Action = "ouvrir application", Method = Method.Internal, OkResponse = "{0} ouvert", ErrorResponse = "{0} non ouvert" };
+                    Command cde5 = new Command() { Name = "Command 5", Description = "Avoir des email", Action = "est-ce que j'ai des messages", Method = Method.Internal, OkResponse = "{0} ouvert", ErrorResponse = "{0} non ouvert" };
+
+                    uow.CommandRepository.Insert(cde0);
+                    uow.CommandRepository.Insert(cde1);
+                    uow.CommandRepository.Insert(cde2);
+                    uow.CommandRepository.Insert(cde3);
+                    uow.CommandRepository.Insert(cde4);
+                    uow.CommandRepository.Insert(cde5);
+                    uow.Save();
+                }
             }
-            
+
             for (;;)
             {
                 Console.WriteLine();
@@ -50,7 +72,7 @@ namespace HomeThings.Server
                 switch (key)
                 {
                     case "O":
-                        Process.Start(urlOfThisApp+PageHandler.PAGE_INDEX);
+                        Process.Start(urlOfThisApp + PageHandler.PAGE_INDEX);
                         break;
                     case "Q":
                         Console.WriteLine("Stoping...");
@@ -74,6 +96,7 @@ namespace HomeThings.Server
 
     internal class Startup
     {
+        private JarvisSerial jserial;
         public void Configuration(IAppBuilder appBuilder)
         {
             //appBuilder.Use<InterceptResponseMiddleware>(appBuilder);
@@ -84,6 +107,33 @@ namespace HomeThings.Server
             ConfigureWebApi(appBuilder);
 
             ConfigureFileServer(appBuilder);
+
+            //ConfigureJarvis();
+        }
+
+        private void ConfigureJarvis()
+        {
+
+            var sub = Jarvis._.Command.Subscribe(onCommand);
+            jserial = new JarvisSerial("COM6", 9600);
+
+            jserial.ReceiveidString.Subscribe(onReceivedString);
+            jserial.Start();
+
+
+
+        }
+
+        public void onCommand(string text)
+        {
+            //if (text == "quitter") System.Environment.Exit(-1);
+            jserial.Write(text);
+
+        }
+
+        public void onReceivedString(string text)
+        {
+            Console.WriteLine(text);
         }
 
         private void ConfigureSignalR(IAppBuilder appBuilder)
@@ -107,9 +157,12 @@ namespace HomeThings.Server
 
             httpConfiguration.Routes.MapHttpRoute(
                 name: "DefaultApi",
-                routeTemplate: "api/{controller}/{id}",
+                routeTemplate: "api/{controller}/{action}/{id}",
                 defaults: new { id = RouteParameter.Optional });
-
+            httpConfiguration.Routes.MapHttpRoute(
+              name: "ApiByAction",
+              routeTemplate: "api/controller/{action}"
+            );
             appBuilder.UseWebApi(httpConfiguration);
 
 
@@ -117,16 +170,16 @@ namespace HomeThings.Server
 
         private void ConfigureFileServer(IAppBuilder app)
         {
-            var options=new FileServerOptions
+            var options = new FileServerOptions
             {
 #if DEBUG
                 EnableDirectoryBrowsing = true,
 #else
                 EnableDirectoryBrowsing = false,
 #endif
-                
+
                 FileSystem = new EmbeddedResourceFileSystem("HomeThings.Server"),
-                
+
             };
             options.StaticFileOptions.ContentTypeProvider = new ContentTypeProvider();
 

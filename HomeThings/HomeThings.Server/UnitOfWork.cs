@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HomeThings.Server.Commands;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,52 +10,43 @@ namespace HomeThings.Server
     public class UnitOfWork : IUnitOfWork
     {
 
-        private ThingsContext context = new ThingsContext();
-        private IRepository<Thing> thingRepository;
-        private IRepository<Setting> settingRepository;
-        private IRepository<Input> intputRepository;
-        public IRepository<Thing> ThingRepository
-        {
-            get
-            {
+        private readonly Lazy<ThingsContext> context ;
+        private readonly Lazy<IRepository<Thing>> thingRepository;
+        private readonly Lazy<IRepository<Command>> commandRepository;
+        private readonly Lazy<IRepository<Setting>> settingRepository;
+        private readonly Lazy<IRepository<Input>> inputRepository ;
+        private readonly Lazy<IRepository<BlocklyToolbox>> blocklyToolboxRepository ;
 
-                if (this.thingRepository == null)
-                {
-                    this.thingRepository = new GenericRepository<Thing>(context);
-                }
-                return thingRepository;
-            }
+        public UnitOfWork()
+        {
+            context = new Lazy<Server.ThingsContext>(() => new ThingsContext());
+            thingRepository = createLazyRepository<Thing>();
+            commandRepository = createLazyRepository<Command>();
+            settingRepository = createLazyRepository<Setting>();
+            inputRepository = createLazyRepository<Input>();
+            blocklyToolboxRepository = createLazyRepository<BlocklyToolbox>();
         }
 
-        public IRepository<Setting> SettingRepository
-        {
-            get
-            {
+        public ThingsContext Context => context.Value;
 
-                if (this.settingRepository == null)
-                {
-                    this.settingRepository = new GenericRepository<Setting>(context);
-                }
-                return settingRepository;
-            }
-        }
+        public IRepository<Thing> ThingRepository => thingRepository.Value;
 
-        public IRepository<Input> InputRepository
-        {
-            get
-            {
+        public IRepository<Command> CommandRepository => commandRepository.Value;
 
-                if (this.intputRepository == null)
-                {
-                    this.intputRepository = new GenericRepository<Input>(context);
-                }
-                return intputRepository;
-            }
-        }
+        public IRepository<Setting> SettingRepository => settingRepository.Value;
+
+        public IRepository<Input> InputRepository => inputRepository.Value;
+
+        public IRepository<BlocklyToolbox> BlocklyToolboxRepository => blocklyToolboxRepository.Value;
+
+       
+
+        private  Lazy<IRepository<T>> createLazyRepository<T>() where T : Entity => new Lazy<IRepository<T>>(() => new GenericRepository<T>(Context));
+        
 
         public void Save()
         {
-            context.SaveChanges();
+            Context.SaveChanges();
         }
 
 
@@ -68,7 +60,8 @@ namespace HomeThings.Server
             {
                 if (disposing)
                 {
-                    context.Dispose();
+                    if(context.IsValueCreated)
+                        context.Value.Dispose();
                 }
             }
             this.disposed = true;
@@ -82,11 +75,13 @@ namespace HomeThings.Server
         #endregion
     }
 
-    public interface IUnitOfWork:IDisposable
+    public interface IUnitOfWork : IDisposable
     {
         void Save();
         IRepository<Thing> ThingRepository { get; }
+        IRepository<Command> CommandRepository { get; }
         IRepository<Setting> SettingRepository { get; }
-        IRepository<Input> InputRepository { get;  }
+        IRepository<Input> InputRepository { get; }
+        IRepository<BlocklyToolbox> BlocklyToolboxRepository { get;  }
     }
 }

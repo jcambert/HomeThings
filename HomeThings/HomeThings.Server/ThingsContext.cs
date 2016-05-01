@@ -1,4 +1,5 @@
-﻿using SQLite.CodeFirst;
+﻿using HomeThings.Server.Commands;
+using SQLite.CodeFirst;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -17,12 +18,18 @@ namespace HomeThings.Server
         }
         public DbSet<Thing> Things { get; set; }
 
+        public DbSet<Command> Commands { get; set; }
+
         public DbSet<Setting> Settings{get;set;}
 
         public DbSet<Input> Inputs { get; set; }
 
+        public DbSet<BlocklyToolbox> BlocklyToolbox{ get; set; }
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
+            
+
             // Database does not pluralize table names
             modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
 
