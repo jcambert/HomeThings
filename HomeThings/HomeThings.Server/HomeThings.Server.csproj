@@ -398,6 +398,7 @@
     <EmbeddedResource Include="blockly\blocks\robuno\Servomoteur_Droite.jpg" />
     <EmbeddedResource Include="blockly\blocks\robuno\Servomoteur_Gauche.jpg" />
     <EmbeddedResource Include="blockly\blocks\robuno\Shield_moteurs_CC.jpg" />
+    <EmbeddedResource Include="blockly\generators\javascript_compressed.js" />
     <Content Include="blockly_uncompressed.js" />
     <Content Include="Content\ng-table.css" />
     <Content Include="Content\ng-table.min.css" />
@@ -415,6 +416,7 @@
     <EmbeddedResource Include="Resources\toolbox_2.xml" />
     <EmbeddedResource Include="Resources\toolbox_all.xml" />
     <EmbeddedResource Include="partials\blockly.directive.html" />
+    <EmbeddedResource Include="Resources\toolbox_demo.xml" />
     <Content Include="Scripts\angular-toggle-switch.js" />
     <EmbeddedResource Include="Scripts\angular-toggle-switch.min.js" />
     <EmbeddedResource Include="Scripts\blockly\blockly_compressed.js" />

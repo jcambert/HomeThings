@@ -1,4 +1,4 @@
-﻿(function (window,document, Blockly,_) {
+﻿(function (window, document, Blockly, _) {
     'use strict';
     var angular = window.angular;
     if (angular == undefined) throw "Angular must be declared before angular-blockly";
@@ -17,7 +17,7 @@
             update: {
                 method: 'PUT'
             },
-            
+
             delete: {
                 method: 'DELETE'
             },
@@ -63,7 +63,7 @@
 
         this.setOptions = function (options) {
             //this.options = options;
-            angular.extend(this.options,options)
+            angular.extend(this.options, options)
         };
 
         this.setEndPoint = function (endpoint) {
@@ -73,7 +73,7 @@
 
     });
 
-    ab.service('blocklySvc', ['$','$timeout','$log',function ($,$timeout,$log) {
+    ab.service('blocklySvc', ['$', '$timeout', '$log', '$rootScope', function ($, $timeout, $log, $rootScope) {
         'use strict';
         var self = this;
         self.holdoffChanges = false;
@@ -91,12 +91,23 @@
             $timeout(function () {
                 self.holdoffChanges = false;
             }, 500);
+
+            self.workspace.addChangeListener(function (event) {
+                switch (event.type) {
+                    case Blockly.Events.CHANGE: $rootScope.$broadcast('blocklyWorkspaceChange', { event: event, workspace: self.workspace }); break;
+                    case Blockly.Events.CREATE: $rootScope.$broadcast('blocklyWorkspaceCreate', { event: event, workspace: self.workspace }); break;
+                    case Blockly.Events.DELETE: $rootScope.$broadcast('blocklyWorkspaceDelete', { event: event, workspace: self.workspace }); break;
+                    default:
+
+                }
+                $rootScope.$broadcast('blocklyWorkspaceEvent', { event: event, workspace: self.workspace });
+            });
         };
 
         self.clearWorkspace = function () {
-           /* if (Blockly.getMainWorkspace() != null && Blockly.getMainWorkspace().topBlocks_.length != 0) {
-                Blockly.getMainWorkspace().clear();
-            }*/
+            /* if (Blockly.getMainWorkspace() != null && Blockly.getMainWorkspace().topBlocks_.length != 0) {
+                 Blockly.getMainWorkspace().clear();
+             }*/
             if (self.workspace == undefined) return;
             self.workspace.clear();
         };
@@ -110,7 +121,7 @@
             //return Blockly.Json.getWorkspace(Blockly.getMainWorkspace());
             //if (self.workspace == undefined) return;
             //if(toolbox)
-           // $log.log(toolbox);
+            // $log.log(toolbox);
             self.workspace.updateToolbox(toolbox);
         };
 
@@ -130,7 +141,7 @@
             //$log.log($xml);
             var $tb = $($.parseXML('<xml id="blocklyToolbox" style="display: none"></xml>'));
             var s = "";
-            
+
             categories.forEach(function (category) {
                 $log.log('Try active ' + category + ' toolbox');
                 var cat = $xml.find('category[name="' + category + '"]');
@@ -140,7 +151,7 @@
             self.setToolbox('<xml id="blocklyToolbox" style="display: none">' + s + '</xml>');
         };
 
-        
+
         /*self.onChange = function (callback) {
             $(Blockly.mainWorkspace.getCanvas()).bind("blocklyWorkspaceChange", function () {
                 if (me.holdoffChanges === false) {
@@ -151,74 +162,60 @@
         };*/
     }]);
 
-    ab.directive('ngBlockly', ['$document', '$window', '$timeout', '$rootScope', 'blockly', 'blocklySvc', '$log', '$', function ($document,$window, $timeout, $rootScope, blockly, blocklySvc, $log, $) {
+    ab.directive('ngBlockly', ['$document', '$window', '$timeout', '$rootScope', 'blockly', 'blocklySvc', '$log', '$', function ($document, $window, $timeout, $rootScope, blockly, blocklySvc, $log, $) {
         return {
             restrict: 'E',
-            replace:true,
+            replace: true,
             scope: { // Isolate scope
             },
-            controller:'blocklyCtrl',
+            controller: 'blocklyCtrl',
             //template: '<div id="blocklyArea"  style="height:100%"><div id="blocklyDiv" style="height: 480px; width: 1200px;" class="ng-blockly"></div></div>',
-            templateUrl:'partials/blockly.directive.html',
+            templateUrl: 'partials/blockly.directive.html',
             link: function ($scope, $element, attrs) {
-                $log.log('link ngBlockly');
-              /*  blockly.getScripts().forEach(function (url) {
-                    $log.log(url)
-                    var script = angular.element('script');
-                    script.attr('src', url);
-                    $element.append(script);
-                });*/
 
                 var options = blockly.getOptions();
-               
-                
+
+
                 var blocklyArea = $element;
                 var blocklyDiv = $element.children()[0];
-               
+
                 var workspace = Blockly.inject(blocklyDiv, options);
-                
+
                 blocklySvc.setWorkspace(workspace);
+
                 var onresize = function (e) {
-                    
+
                     // Compute the absolute coordinates and dimensions of blocklyArea.
                     var element = $("#blocklyArea").parent();// blocklyArea;
-                   
+
                     var x = 0;
                     var y = 0;
-                  //  do {
-                        x += element.offsetLeft;
-                        y += element.offsetTop;
-                        //element = element.offsetParent;
-                   // } while (element);
+                    //  do {
+                    x += element.offsetLeft;
+                    y += element.offsetTop;
+                    //element = element.offsetParent;
+                    // } while (element);
                     // Position blocklyDiv over blocklyArea.
                     blocklyDiv.style.left = x + 'px';
                     blocklyDiv.style.top = y + 'px';
                     blocklyDiv.style.width = element.width() + 'px';
                     blocklyDiv.style.height = element.height() + 'px';
-                    
+
                 };
                 window.addEventListener('resize', onresize, false);
                 onresize();
-
-                
-
-               
 
             }
 
         };
     }]);
 
-    ab.controller('blocklyCtrl', ['$scope', '$log','$http','blocklySvc','BlocklyToolboxApi',function ($scope, $log,$http,$blockly,$api) {
-       
-        /*$scope.toolbox = "";
-        $scope.$watch('toolbox', function () {
-            $log.log('new Toolbox'); $log.log($scope.toolbox);
-            $blockly.setToolbox($scope.toolbox);
-        });*/
+    ab.controller('blocklyCtrl', ['$scope', '$log', '$http', 'blocklySvc', 'BlocklyToolboxApi', function ($scope, $log, $http, $blockly, $api) {
+
+
         $http({
             method: 'GET',
-            url: 'http://192.168.0.11:8888/resources/toolbox_all.xml'
+            url: 'http://192.168.0.11:8888/resources/toolbox_demo.xml'
         }).then(function successCallback(response) {
             // this callback will be called asynchronously
             // when the response is available
@@ -230,8 +227,41 @@
             // called asynchronously if an error occurs
             // or server returns response with an error status.
         });
-
-       
     }]);
+    ab.directive('ngBlocklyCode', [function () {
+        return {
+            restrict: 'E',
+            replace: true,
+            scope: {
+                lang: '@',
+                //code:'=',
+            },
+            template: '<textarea id="blocklyCode" ng-model="code"></textarea>',
+            controller: ['$log', '$rootScope', '$scope', 'blocklySvc',function ($log, $rootScope, $scope, blocklySvc) {
+                var self = this;
+                
+                $scope.code =$scope.lang;
+               
+                $scope.lang = $scope.lang.toLowerCase(); 
+                switch ($scope.lang) {
+                    case "javascript": self.generator = Blockly.JavaScript; break;
+                    default:
 
-})(window,document, Blockly,_);
+                }
+                $scope.$on('blocklyWorkspaceEvent', function (event, args) {
+                    //alert('blockly workspace create');
+                    //$log.log(event);
+                    //$log.log(args);
+                    generateCode(args.workspace);
+                });
+
+                function generateCode(workspace) {
+                    $log.log('generate '+$scope.lang + ' code');
+                    $scope.code = self.generator.workspaceToCode(workspace);
+                    $log.log($scope.code);
+                    $scope.$apply();
+                }
+            }]
+        };
+    }]);
+})(window, document, Blockly, _);
