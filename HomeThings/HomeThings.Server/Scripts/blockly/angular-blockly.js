@@ -143,9 +143,9 @@
             var s = "";
 
             categories.forEach(function (category) {
-                $log.log('Try active ' + category + ' toolbox');
+               // $log.log('Try active ' + category + ' toolbox');
                 var cat = $xml.find('category[name="' + category + '"]');
-                $log.log(cat.html());
+                //$log.log(cat.html());
                 s += cat.html();
             });
             self.setToolbox('<xml id="blocklyToolbox" style="display: none">' + s + '</xml>');
@@ -215,7 +215,7 @@
 
         $http({
             method: 'GET',
-            url: 'http://192.168.0.11:8888/resources/toolbox_demo.xml'
+            url: 'http://127.0.0.1:8888/resources/toolbox_all.xml'
         }).then(function successCallback(response) {
             // this callback will be called asynchronously
             // when the response is available
@@ -245,6 +245,7 @@
                 $scope.lang = $scope.lang.toLowerCase(); 
                 switch ($scope.lang) {
                     case "javascript": self.generator = Blockly.JavaScript; break;
+                    case "arduino": self.generator = Blockly.Arduino; break;
                     default:
 
                 }

@@ -14,7 +14,9 @@ using System.Net.Http.Formatting;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
+#if JARVIS
 using Webcorp.Domotic.Core;
+#endif
 
 namespace HomeThings.Server
 {
@@ -27,7 +29,8 @@ namespace HomeThings.Server
         {
             var baseAddress = "http://*:80/";
             var isWin = Environment.OSVersion.Platform == PlatformID.Win32NT;
-            if (isWin) baseAddress = "http://192.168.0.11:8888/";
+            //if (isWin) baseAddress = "http://192.168.0.11:8888/";
+            if (isWin) baseAddress = "http://127.0.0.1:8888/";
             var httpHost = WebApp.Start<Startup>(url: baseAddress);
 
             var urlOfThisApp = baseAddress.Replace("*", "127.0.0.1");
@@ -75,14 +78,14 @@ namespace HomeThings.Server
                         Process.Start(urlOfThisApp + PageHandler.PAGE_INDEX);
                         break;
                     case "Q":
-                        Console.WriteLine("Stoping...");
+                        Console.WriteLine("Stopping...");
 
                         Halt = true;
 
 
                         httpHost.Dispose();
 
-                        Console.WriteLine("Stoped.");
+                        Console.WriteLine("Stopped.");
                         return;
                     default:
                         break;
@@ -96,7 +99,9 @@ namespace HomeThings.Server
 
     internal class Startup
     {
+#if JARVIS
         private JarvisSerial jserial;
+#endif
         public void Configuration(IAppBuilder appBuilder)
         {
             //appBuilder.Use<InterceptResponseMiddleware>(appBuilder);
@@ -107,10 +112,11 @@ namespace HomeThings.Server
             ConfigureWebApi(appBuilder);
 
             ConfigureFileServer(appBuilder);
-
-            //ConfigureJarvis();
+#if JARVIS
+            ConfigureJarvis();
+#endif
         }
-
+#if JARVIS
         private void ConfigureJarvis()
         {
 
@@ -135,7 +141,7 @@ namespace HomeThings.Server
         {
             Console.WriteLine(text);
         }
-
+#endif
         private void ConfigureSignalR(IAppBuilder appBuilder)
         {
             appBuilder.UseCors(CorsOptions.AllowAll);

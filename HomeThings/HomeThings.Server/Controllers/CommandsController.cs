@@ -6,7 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+#if JARVIS
 using Webcorp.Domotic.Core;
+#endif
 using System.Net.Http;
 using System.Threading;
 

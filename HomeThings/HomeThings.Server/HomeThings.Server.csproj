@@ -21,7 +21,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>false</UseVSHostingProcess>
@@ -399,7 +399,8 @@
     <EmbeddedResource Include="blockly\blocks\robuno\Servomoteur_Gauche.jpg" />
     <EmbeddedResource Include="blockly\blocks\robuno\Shield_moteurs_CC.jpg" />
     <EmbeddedResource Include="blockly\generators\javascript_compressed.js" />
-    <Content Include="blockly_uncompressed.js" />
+    <EmbeddedResource Include="blockly\generators\arduino.js" />
+    <EmbeddedResource Include="blockly\utils\boards.js" />
     <Content Include="Content\ng-table.css" />
     <Content Include="Content\ng-table.min.css" />
     <EmbeddedResource Include="partials\add.things.partial.html" />
