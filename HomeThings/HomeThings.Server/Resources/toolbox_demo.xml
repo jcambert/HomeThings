@@ -8,6 +8,7 @@
       <block type="logic_null"></block>
       <block type="logic_ternary"></block>
     </category>
+
     <category id="catLoops" colour="120">
       <block type="controls_repeat_ext">
         <value name="TIMES">

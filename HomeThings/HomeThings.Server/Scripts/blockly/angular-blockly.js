@@ -80,6 +80,7 @@
         self.worspace = undefined;
         self.defaultToolbox = '';
         self.setWorkspace = function (workspace) {
+            if (self.workspace != undefined) return;
             /*if (Blockly.getMainWorkspace() != null && Blockly.getMainWorkspace().topBlocks_.length != 0) {
                 Blockly.getMainWorkspace().clear();
             }
@@ -265,4 +266,11 @@
             }]
         };
     }]);
+
+    ab.directive('ngBlocklyXml', function () {
+        return {
+            restrict: 'E',
+
+        }
+    });
 })(window, document, Blockly, _);

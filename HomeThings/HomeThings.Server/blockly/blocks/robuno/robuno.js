@@ -201,7 +201,7 @@ Blockly.Blocks['robuno_moteurs_CC'] = {
         .appendField(Blockly.Msg.ROBUNO_TEXT9)
         .appendField(new Blockly.FieldDropdown([["A", "A"], ["B", "B"]]), "MOT")
         .appendField(Blockly.Msg.ROBUNO_TEXT10)
-        .appendField(new Blockly.FieldImage("blockly/blocks/robuno/Shield_moteurs_CC.jpg", Blockly.Arduino.imageSize, Blockly.Arduino.imageSize));
+        .appendField(new Blockly.FieldImage(Blockly.pathToBlockly + 'blockly/blocks/robuno/Shield_moteurs_CC.jpg', Blockly.Arduino.imageSize, Blockly.Arduino.imageSize));
         //.appendField(Blockly.Msg.ROBUNO_TEXT11);
     this.appendValueInput("SENS")
 		.setCheck('Boolean')

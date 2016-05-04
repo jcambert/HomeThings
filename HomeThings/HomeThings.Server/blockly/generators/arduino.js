@@ -35,6 +35,17 @@ goog.require('Blockly.StaticTyping');
 Blockly.Arduino = new Blockly.Generator('Arduino');
 Blockly.Arduino.StaticTyping = new Blockly.StaticTyping();
 
+//BlocklyDuino.pictSize = 2;
+//set default image size
+Blockly.Arduino.imageSizeNull = 0; //pictSize = 0
+Blockly.Arduino.imageSizeSmall = 32; //pictSize = 1
+Blockly.Arduino.imageSizeNormal = 64; //pictSize = 2
+Blockly.Arduino.imageSizeBig = 96; //pictSize = 3
+Blockly.Arduino.imageSizeOld = 32;
+Blockly.Arduino.imageSize = Blockly.Arduino.imageSizeNormal;
+Blockly.Arduino.imageBool = true;
+Blockly.Arduino.cardSize = 200; //same as width in index.html showcardModal
+
 /**
  * List of illegal variable names.
  * This is not intended to be a security feature.  Blockly is 100% client-side,
